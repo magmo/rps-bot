@@ -26,6 +26,9 @@ def extract_bytes(h_string, byte_offset = 0, num_bytes = F_WIDTH):
 def extract_int(h_string, byte_offset = 0, num_bytes = 32):
     return int(extract_bytes(h_string, byte_offset, num_bytes), 16)
 
+#def extract_bn(h_string, byte_offset = 0, num_bytes = 32):
+#  return new BN(extractBytes(hexString, byteOffset, numBytes).substr(2),16);
+
 def extract_channel(h_message):
     offset_so_far = F_WIDTH - ADDRESS_WIDTH
     type = extract_bytes(h_message, offset_so_far, ADDRESS_WIDTH)    
@@ -48,14 +51,12 @@ def extract_channel(h_message):
     participant_b = extract_bytes(h_message, offset_so_far, ADDRESS_WIDTH)
     return {'type': type, 'nonce': nonce, 'participants': [participant_a, participant_b]}
 
-def decode(h_message):
-    pass
-    #channel = extract_channel(h_message)
-    #turnNum = extractTurnNum(hexMessage)
-    #stateType = extractStateType(hexString)
-    #balances = extractBalances(hexString)
 
-    #return {'channel': channel}
+def decode(h_message):
+    channel = extract_channel(h_message)
+    state_type = extract_int(h_message, CHANNEL_BYTES)
+    turn_num = extract_int(h_message, CHANNEL_BYTES + F_WIDTH)
+    #balances = extractBalances(h_message)
 
 def encode(sMessage):
     pass
