@@ -42,7 +42,7 @@ def extract_channel(h_message):
 
     offset_so_far += F_WIDTH - ADDRESS_WIDTH
     participant_a = extract_bytes(h_message, offset_so_far, ADDRESS_WIDTH)
-    offset_so_far +=ADDRESS_WIDTH
+    offset_so_far += ADDRESS_WIDTH
 
     offset_so_far += F_WIDTH - ADDRESS_WIDTH
     participant_b = extract_bytes(h_message, offset_so_far, ADDRESS_WIDTH)
