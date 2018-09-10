@@ -31,7 +31,7 @@ GAME_STATES = (
 bp = Blueprint('state_message', __name__)
 
 def prefund_setup(hex_message):
-    pass
+    coder.get_state_count(hex_message)
 
 def postfund_setup(hex_message):
     pass

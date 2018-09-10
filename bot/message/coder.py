@@ -6,7 +6,18 @@ ADDRESS_WIDTH = 20
 
 CHANNEL_BYTES = F_WIDTH + F_WIDTH + F_WIDTH + F_WIDTH * N_PLAYERS #type, nonce, nPlayers, [players]
 STATE_BYTES = F_WIDTH + F_WIDTH + F_WIDTH + F_WIDTH * N_PLAYERS #stateType, turnNum, stateCount, [balances]
-GAME_ATTRIBUTE_OFFSET = CHANNEL_BYTES + STATE_BYTES
+GAME_OFFSET = CHANNEL_BYTES + STATE_BYTES
+''' RockPaperScissors Game Fields
+    (relative to game offset)
+    ==============================
+    [  0 -  31] enum positionType
+    [ 32 -  63] uint256 stake
+    [ 64 -  95] bytes32 preCommit
+    [ 96 - 127] enum bPlay
+    [128 - 159] enum aPlay
+    [160 - 191] bytes32 salt
+    [192 - 223] uint256 roundNum
+'''
 
 class CoderError(Exception):
     pass
@@ -25,15 +36,21 @@ def extract_bytes(h_string, byte_offset = 0, num_bytes = F_WIDTH):
 def extract_int(h_string, byte_offset = 0, num_bytes = 32):
     return int(extract_bytes(h_string, byte_offset, num_bytes), 16)
 
-''' Channel attribute getters'''
 def get_address_from_field(field):
     return field[CHARS_PER_BYTE * (F_WIDTH - ADDRESS_WIDTH):]
 
+def get_byte_attribute_at_offset(h_message, offset, attr_index):
+    return extract_bytes(h_message, offset + F_WIDTH * attr_index)
+
+def get_int_attribute_at_offset(h_message, offset, attr_index):
+    return extract_int(h_message, offset + F_WIDTH * attr_index)
+
+''' Channel attribute getters'''
 def get_channel_byte_attribute(h_message, attr_index):
-    return extract_bytes(h_message, F_WIDTH * attr_index)
+    return get_byte_attribute_at_offset(h_message, 0, attr_index)
 
 def get_channel_int_attribute(h_message, attr_index):
-    return extract_int(h_message, F_WIDTH * attr_index)
+    return get_int_attribute_at_offset(h_message, 0, attr_index)
 
 def get_channel_type(h_message):
     type = get_channel_byte_attribute(h_message, 0)
@@ -55,7 +72,7 @@ def get_channel_players(h_message):
 
 ''' State attribute getters '''
 def get_state_int_attribute(h_message, attr_index):
-    return extract_int(h_message, CHANNEL_BYTES + F_WIDTH * attr_index)
+    return get_int_attribute_at_offset(h_message, CHANNEL_BYTES, attr_index)
 
 def get_channel_state(h_message):
     return get_state_int_attribute(h_message, 0)
@@ -65,3 +82,28 @@ def get_state_turn_num(h_message):
 
 def get_state_count(h_message):
     return get_state_int_attribute(h_message, 2)
+
+''' Game attribute getters '''
+def get_game_byte_attribute(h_message, attr_index):
+    return get_byte_attribute_at_offset(h_message, GAME_OFFSET, attr_index)
+
+def get_game_int_attribute(h_message, attr_index):
+    return get_int_attribute_at_offset(h_message, GAME_OFFSET, attr_index)
+
+def get_game_position_type(h_message):
+    return get_game_int_attribute(h_message, 0)
+
+def get_game_stake(h_message):
+    return get_game_int_attribute(h_message, 1)
+
+def get_game_precommit(h_message):
+    return get_game_byte_attribute(h_message, 2)
+
+def get_game_bplay(h_message):
+    return get_game_int_attribute(h_message, 3)
+
+def get_game_aplay(h_message):
+    return get_game_int_attribute(h_message, 4)
+
+def get_game_salt(h_message):
+    return get_game_byte_attribute(h_message, 5)
