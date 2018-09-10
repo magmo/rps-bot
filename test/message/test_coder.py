@@ -2,13 +2,24 @@ from bot.message import coder
 
 sample_message = '0x000000000000000000000000c1912fee45d61c87cc5ea59dae31190fffff232d00000000000000000000000000000000000000000000000000000000000001c8000000000000000000000000000000000000000000000000000000000000000200000000000000000000000063422d2F15a64F965B11B26AF46aDFba5324295e000000000000000000000000a553F47cD9B7a5FB01baAC15E760E30E092F8A2B000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005a000000000000000000000000000000000000000000000000000000000000005a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e'
 sample_nonce = 456
-sample_participant_a = '0x63422d2F15a64F965B11B26AF46aDFba5324295e'
-sample_participant_b = '0xa553F47cD9B7a5FB01baAC15E760E30E092F8A2B'
-sample_type = '0xc1912fee45d61c87cc5ea59dae31190fffff232d'
+sample_player_a = '63422d2F15a64F965B11B26AF46aDFba5324295e'
+sample_player_b = 'a553F47cD9B7a5FB01baAC15E760E30E092F8A2B'
+sample_type = 'c1912fee45d61c87cc5ea59dae31190fffff232d'
 
-def test_extract_channel():
-    channel = coder.extract_channel(sample_message)
-    assert channel['nonce'] == sample_nonce
-    assert channel['participants'][0] == sample_participant_a
-    assert channel['participants'][1] == sample_participant_b  
-    assert channel['type'] == sample_type 
+def test_channel_attributes():
+    nonce = coder.get_channel_nonce(sample_message)
+    assert nonce == sample_nonce
+    
+    players = coder.get_channel_players(sample_message)
+    assert players[0] == sample_player_a
+    assert players[1] == sample_player_b
+    
+    channel_type = coder.get_channel_type(sample_message)
+    assert channel_type == sample_type
+
+    state = coder.get_channel_state(sample_message)
+    assert state == 0
+
+def test_state_attributes():
+    turn_num = coder.get_state_turn_num(sample_message)
+    assert turn_num == 0

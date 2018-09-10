@@ -1,5 +1,4 @@
 PREFIX = '0x'
-PREFIX_OFFSET = len(PREFIX)
 CHARS_PER_BYTE = 2
 N_PLAYERS = 2
 F_WIDTH = 32
@@ -20,43 +19,49 @@ class NumPlayersError(CoderError):
         return f'Rock-paper-scissors requires exactly {N_PLAYERS} players. {self.num_players} provided.'
 
 def extract_bytes(h_string, byte_offset = 0, num_bytes = F_WIDTH):
-    char_offset = PREFIX_OFFSET + byte_offset * CHARS_PER_BYTE
-    return PREFIX + h_string[char_offset:char_offset + num_bytes * CHARS_PER_BYTE]
+    char_offset = len(PREFIX) + byte_offset * CHARS_PER_BYTE
+    return h_string[char_offset:char_offset + num_bytes * CHARS_PER_BYTE]
 
 def extract_int(h_string, byte_offset = 0, num_bytes = 32):
     return int(extract_bytes(h_string, byte_offset, num_bytes), 16)
 
-#def extract_bn(h_string, byte_offset = 0, num_bytes = 32):
-#  return new BN(extractBytes(hexString, byteOffset, numBytes).substr(2),16);
+''' Channel attribute getters'''
+def get_address_from_field(field):
+    return field[CHARS_PER_BYTE * (F_WIDTH - ADDRESS_WIDTH):]
 
-def extract_channel(h_message):
-    offset_so_far = F_WIDTH - ADDRESS_WIDTH
-    type = extract_bytes(h_message, offset_so_far, ADDRESS_WIDTH)    
-    offset_so_far += ADDRESS_WIDTH
+def get_channel_byte_attribute(h_message, attr_index):
+    return extract_bytes(h_message, F_WIDTH * attr_index)
 
-    nonce = extract_int(h_message, offset_so_far)
-    offset_so_far +=F_WIDTH
-    
-    num_players = extract_int(h_message, offset_so_far)
-    offset_so_far +=F_WIDTH
+def get_channel_int_attribute(h_message, attr_index):
+    return extract_int(h_message, F_WIDTH * attr_index)
 
+def get_channel_type(h_message):
+    type = get_channel_byte_attribute(h_message, 0)
+    return get_address_from_field(type)
+
+def get_channel_nonce(h_message):
+    return get_channel_int_attribute(h_message, 1)
+
+def get_channel_num_players(h_message):
+    num_players = get_channel_int_attribute(h_message, 2)
     if num_players != N_PLAYERS:
         raise NumPlayersError(num_players)
 
-    offset_so_far += F_WIDTH - ADDRESS_WIDTH
-    participant_a = extract_bytes(h_message, offset_so_far, ADDRESS_WIDTH)
-    offset_so_far += ADDRESS_WIDTH
-
-    offset_so_far += F_WIDTH - ADDRESS_WIDTH
-    participant_b = extract_bytes(h_message, offset_so_far, ADDRESS_WIDTH)
-    return {'type': type, 'nonce': nonce, 'participants': [participant_a, participant_b]}
+def get_channel_players(h_message):
+    player_a = get_channel_byte_attribute(h_message, 3)
+    player_b = get_channel_byte_attribute(h_message, 4)
+    return [get_address_from_field(player_a), get_address_from_field(player_b)]
 
 
-def decode(h_message):
-    channel = extract_channel(h_message)
-    state_type = extract_int(h_message, CHANNEL_BYTES)
-    turn_num = extract_int(h_message, CHANNEL_BYTES + F_WIDTH)
-    #balances = extractBalances(h_message)
+''' State attribute getters '''
+def get_state_int_attribute(h_message, attr_index):
+    return extract_int(h_message, CHANNEL_BYTES + F_WIDTH * attr_index)
 
-def encode(sMessage):
-    pass
+def get_channel_state(h_message):
+    return get_state_int_attribute(h_message, 0)
+
+def get_state_turn_num(h_message):
+    return get_state_int_attribute(h_message, 1)
+
+def get_state_count(h_message):
+    return get_state_int_attribute(h_message, 2)
