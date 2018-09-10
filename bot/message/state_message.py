@@ -4,7 +4,7 @@ from flask.logging import logging
 import bot.message.coder as coder
 
 BOT_ID = '0x0000000000000000000000000000000000000B01'
-bp = Blueprint('state_message', __name__, url_prefix='/message')
+bp = Blueprint('state_message', __name__)
 
 @bp.route('/state_message', methods=['POST'])
 def state_message():
