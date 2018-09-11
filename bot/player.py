@@ -3,7 +3,8 @@ from flask.logging import logging
 
 import bot.coder as coder
 
-BOT_ID = '0x0000000000000000000000000000000000000B01'
+PREFIX = '0x'
+BOT_ID = '0000000000000000000000000000000000000b01'
 CHANNEL_STATES = (
     'PreFundSetup',
     'PostFundSetup'
@@ -28,21 +29,36 @@ GAME_STATES = (
     'GameReveal'
 )
 
+class PlayerError(Exception):
+    pass
+
+class PlayerAError(PlayerError):
+    def __str__(self):
+        return 'The bot only plays as player B'
+
 BP = Blueprint('channel_message', __name__)
 
 def prefund_setup(hex_message):
+
     state_count = coder.get_state_count(hex_message)
+    actions = []
     if state_count:
-        pass #prefundsetupB
+        raise PlayerAError()
     else:
-        pass #prefundsetupA
+        actions = [coder.increment_state_turn_num, coder.increment_channel_state]
+
+    response_message = hex_message
+    for action in actions:
+        response_message = action(response_message)
+
+    return response_message
 
 def postfund_setup(hex_message):
     state_count = coder.get_state_count(hex_message)
     if state_count:
         pass #postfundsetupB
     else:
-        pass #postfundsetupA
+        raise PlayerAError()
 
 def game(hex_message):
     pass
@@ -57,19 +73,21 @@ CHANNEL_STATES = [
     conclude
 ]
 
-@BP.route('/channel_message', methods=['POST'])
-def channel_message():
-    hex_message = request.form['hex_message']
-
-    num_players = coder.get_channel_num_players(hex_message)
+def ingest_message(hex_message):
+    hex_message = hex_message[len(PREFIX):]
+    coder.assert_channel_num_players(hex_message)
+    response = ''
 
     players = coder.get_channel_players(hex_message)
     if BOT_ID not in players:
         logging.warning('The message players do not include a bot')
-        #return "The message players do not include a bot"
+        return response
 
     hex_state = int(coder.get_channel_state(hex_message))
-    CHANNEL_STATES[hex_state](hex_message)
+    return PREFIX + CHANNEL_STATES[hex_state](hex_message)
 
-    return "That's it for now"
+@BP.route('/channel_message', methods=['POST'])
+def channel_message():
+    hex_message = request.form['hex_message']
+    return ingest_message(hex_message)
     

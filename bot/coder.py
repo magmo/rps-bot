@@ -1,4 +1,3 @@
-PREFIX = '0x'
 CHARS_PER_BYTE = 2
 N_PLAYERS = 2
 F_WIDTH = 32
@@ -34,8 +33,12 @@ class NumPlayersError(CoderError):
         return f'Rock-paper-scissors requires exactly ' + \
             '{N_PLAYERS} players. {self.num_players} provided.'
 
+def int_to_field(num):
+    h_num = format(num, 'x')
+    return '{:0>64}'.format(h_num)
+
 def extract_bytes(h_string, byte_offset=0, num_bytes=F_WIDTH):
-    char_offset = len(PREFIX) + byte_offset * CHARS_PER_BYTE
+    char_offset = byte_offset * CHARS_PER_BYTE
     return h_string[char_offset:char_offset + num_bytes * CHARS_PER_BYTE]
 
 def extract_int(h_string, byte_offset=0, num_bytes=32):
@@ -49,6 +52,12 @@ def get_byte_attribute_at_offset(h_message, offset, attr_index):
 
 def get_int_attribute_at_offset(h_message, offset, attr_index):
     return extract_int(h_message, offset + F_WIDTH * attr_index)
+
+def update_field(h_message, offset, attr_index, new_field):
+    field_offset = (offset + F_WIDTH * attr_index) * CHARS_PER_BYTE
+    prefix = h_message[:field_offset]
+    suffix = h_message[field_offset + F_WIDTH * CHARS_PER_BYTE:]
+    return prefix + new_field + suffix
 
 # Channel attribute getters
 def get_channel_byte_attribute(h_message, attr_index):
@@ -70,6 +79,9 @@ def get_channel_num_players(h_message):
         raise NumPlayersError(num_players)
     return num_players
 
+def assert_channel_num_players(h_message):
+    get_channel_num_players(h_message)
+
 def get_channel_players(h_message):
     player_a = get_channel_byte_attribute(h_message, 3)
     player_b = get_channel_byte_attribute(h_message, 4)
@@ -88,6 +100,16 @@ def get_state_turn_num(h_message):
 
 def get_state_count(h_message):
     return get_state_int_attribute(h_message, 2)
+
+def increment_state_turn_num(h_message):
+    turn_num = get_state_turn_num(h_message)
+    turn_num += 1
+    return update_field(h_message, CHANNEL_BYTES, 1, int_to_field(turn_num))
+
+def increment_channel_state(h_message):
+    state = get_channel_state(h_message)
+    state += 1
+    return update_field(h_message, CHANNEL_BYTES, 2, int_to_field(state))
 
 # Game attribute getters
 def get_game_byte_attribute(h_message, attr_index):
