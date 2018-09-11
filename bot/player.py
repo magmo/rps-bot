@@ -28,7 +28,7 @@ GAME_STATES = (
     'GameReveal'
 )
 
-BP = Blueprint('state_message', __name__)
+BP = Blueprint('channel_message', __name__)
 
 def prefund_setup(hex_message):
     state_count = coder.get_state_count(hex_message)
@@ -57,8 +57,8 @@ CHANNEL_STATES = [
     conclude
 ]
 
-@BP.route('/state_message', methods=['POST'])
-def state_message():
+@BP.route('/channel_message', methods=['POST'])
+def channel_message():
     hex_message = request.form['hex_message']
 
     num_players = coder.get_channel_num_players(hex_message)
