@@ -1,0 +1,12 @@
+{
+    "python.pythonPath": "/Users/misha/virtualenvs/rps-bot/bin/python",
+
+    "files.exclude": {
+        "**/*__pycache__": true,
+        "**/*.pytest_cache": true
+    },
+
+    "python.linting.pylintUseMinimalCheckers": false,
+
+    "python.linting.pylintArgs": ["--disable=C0111"]
+}

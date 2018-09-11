@@ -4,11 +4,11 @@ from bot import create_app
 @pytest.fixture
 def app():
     """Create and configure a new app instance for each test."""
-    app = create_app({
+    app_instance = create_app({
         'TESTING': True
     })
 
-    yield app
+    yield app_instance
 
 @pytest.fixture
 def client(app):
