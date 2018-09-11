@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask.logging import logging
 
-import bot.message.coder as coder
+import bot.coder as coder
 
 BOT_ID = '0x0000000000000000000000000000000000000B01'
 CHANNEL_STATES = (
