@@ -5,8 +5,11 @@ ADDRESS_WIDTH = 20
 
 # type, nonce, nPlayers, [players]
 CHANNEL_BYTES = F_WIDTH + F_WIDTH + F_WIDTH + F_WIDTH * N_PLAYERS
+STATE_OFFSET = CHANNEL_BYTES
+
 # stateType, turnNum, stateCount, [balances]
 STATE_BYTES = F_WIDTH + F_WIDTH + F_WIDTH + F_WIDTH * N_PLAYERS
+
 ''' RockPaperScissors Game Fields
     (relative to game offset)
     ==============================
@@ -18,7 +21,7 @@ STATE_BYTES = F_WIDTH + F_WIDTH + F_WIDTH + F_WIDTH * N_PLAYERS
     [160 - 191] bytes32 salt
     [192 - 223] uint256 roundNum
 '''
-GAME_OFFSET = CHANNEL_BYTES + STATE_BYTES
+GAME_OFFSET = STATE_OFFSET + STATE_BYTES
 
 
 class CoderError(Exception):
@@ -90,7 +93,7 @@ def get_channel_players(h_message):
 
 # State attribute getters
 def get_state_int_attribute(h_message, attr_index):
-    return get_int_attribute_at_offset(h_message, CHANNEL_BYTES, attr_index)
+    return get_int_attribute_at_offset(h_message, STATE_OFFSET, attr_index)
 
 def get_channel_state(h_message):
     return get_state_int_attribute(h_message, 0)
@@ -104,12 +107,12 @@ def get_state_count(h_message):
 def increment_state_turn_num(h_message):
     turn_num = get_state_turn_num(h_message)
     turn_num += 1
-    return update_field(h_message, CHANNEL_BYTES, 1, int_to_field(turn_num))
+    return update_field(h_message, STATE_OFFSET, 1, int_to_field(turn_num))
 
 def increment_state_count(h_message):
     state = get_state_count(h_message)
     state += 1
-    return update_field(h_message, CHANNEL_BYTES, 2, int_to_field(state))
+    return update_field(h_message, STATE_OFFSET, 2, int_to_field(state))
 
 # Game attribute getters
 def get_game_byte_attribute(h_message, attr_index):
@@ -118,7 +121,7 @@ def get_game_byte_attribute(h_message, attr_index):
 def get_game_int_attribute(h_message, attr_index):
     return get_int_attribute_at_offset(h_message, GAME_OFFSET, attr_index)
 
-def get_game_position_type(h_message):
+def get_game_position(h_message):
     return get_game_int_attribute(h_message, 0)
 
 def get_game_stake(h_message):
@@ -135,3 +138,8 @@ def get_game_aplay(h_message):
 
 def get_game_salt(h_message):
     return get_game_byte_attribute(h_message, 5)
+
+def increment_game_position(h_message):
+    game_position = get_game_position(h_message)
+    game_position += 1
+    return update_field(h_message, GAME_OFFSET, 0, int_to_field(game_position))

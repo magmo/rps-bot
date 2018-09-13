@@ -52,7 +52,8 @@ def postfund_setup(hex_message):
     return prefund_setup(hex_message)
 
 def game(hex_message):
-    pass
+    transformations = [coder.increment_game_position]
+    return transformations
 
 def conclude(hex_message):
     pass
