@@ -12,7 +12,9 @@ FIELDS = [
     'balance a',
     'balance b',
     'position type',
-    'stake'
+    'stake',
+    'game field',
+    'game field'
 ]
 def main():
     parser = argparse.ArgumentParser()
@@ -21,7 +23,9 @@ def main():
     args = parser.parse_args()
 
     # Remove '0x'
-    message = args.message[2:]
+    message = args.message
+    if message[:2] == '0x':
+        message = args.message[2:]
     counter = 0
 
     print()
