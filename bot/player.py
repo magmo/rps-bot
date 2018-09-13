@@ -38,15 +38,21 @@ def playera_pays_playerb(hex_message):
     hex_message = coder.increment_state_balance(hex_message, 0, -1 * stake)
     return coder.increment_state_balance(hex_message, 1, stake)
 
-def game_propose(hex_message):
-    #TODO: Choose move
-    return [playera_pays_playerb]
+def play_move(hex_message):
+    # Always play rock for now
+    return coder.update_move(hex_message, 0)
+
+def from_game_propose(hex_message):
+    return [playera_pays_playerb, play_move, coder.increment_game_position]
+
+def from_game_reveal(hex_message):
+    return [coder.new_game]
 
 GAME_STATES = (
-    lambda x: undefined_game_position('GameResting'),
-    game_propose,
-    lambda x: undefined_game_position('GameAccept'),
-    lambda x: undefined_game_position('GameReveal')
+    lambda x: undefined_game_position('FromGameResting'),
+    from_game_propose,
+    lambda x: undefined_game_position('FromGameAccept'),
+    from_game_reveal
 )
 
 
@@ -65,8 +71,7 @@ def postfund_setup(hex_message):
 
 def game(hex_message):
     game_position = coder.get_game_position(hex_message)
-    message_transformations = GAME_STATES[game_position](hex_message)
-    return message_transformations + [coder.increment_game_position]
+    return GAME_STATES[game_position](hex_message)
 
 def conclude(hex_message):
     raise PlayerChannelStateNotImplementedError('conclude')

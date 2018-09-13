@@ -11,7 +11,7 @@ FIELDS = [
     'state count',
     'balance a',
     'balance b',
-    'position type',
+    'game position',
     'stake',
     'game precommit',
     'bPlay',

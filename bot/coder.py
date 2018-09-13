@@ -36,48 +36,48 @@ class NumPlayersError(CoderError):
         return f'Rock-paper-scissors requires exactly ' + \
             '{N_PLAYERS} players. {self.num_players} provided.'
 
-def int_to_field(num):
+def _int_to_field(num):
     h_num = format(num, 'x')
     return '{:0>64}'.format(h_num)
 
-def extract_bytes(h_string, byte_offset=0, num_bytes=F_WIDTH):
+def _extract_bytes(h_string, byte_offset=0, num_bytes=F_WIDTH):
     char_offset = byte_offset * CHARS_PER_BYTE
     return h_string[char_offset:char_offset + num_bytes * CHARS_PER_BYTE]
 
-def extract_int(h_string, byte_offset=0, num_bytes=32):
-    return int(extract_bytes(h_string, byte_offset, num_bytes), 16)
+def _extract_int(h_string, byte_offset=0, num_bytes=32):
+    return int(_extract_bytes(h_string, byte_offset, num_bytes), 16)
 
-def get_address_from_field(field):
+def _get_address_from_field(field):
     return field[CHARS_PER_BYTE * (F_WIDTH - ADDRESS_WIDTH):]
 
-def get_byte_attribute_at_offset(h_message, offset, attr_index):
-    return extract_bytes(h_message, offset + F_WIDTH * attr_index)
+def _get_byte_attribute_at_offset(h_message, offset, attr_index):
+    return _extract_bytes(h_message, offset + F_WIDTH * attr_index)
 
-def get_int_attribute_at_offset(h_message, offset, attr_index):
-    return extract_int(h_message, offset + F_WIDTH * attr_index)
+def _get_int_attribute_at_offset(h_message, offset, attr_index):
+    return _extract_int(h_message, offset + F_WIDTH * attr_index)
 
-def update_field(h_message, offset, attr_index, new_field):
+def _update_field(h_message, offset, attr_index, new_field):
     field_offset = (offset + F_WIDTH * attr_index) * CHARS_PER_BYTE
     prefix = h_message[:field_offset]
     suffix = h_message[field_offset + F_WIDTH * CHARS_PER_BYTE:]
     return prefix + new_field + suffix
 
 # Channel attribute getters
-def get_channel_byte_attribute(h_message, attr_index):
-    return get_byte_attribute_at_offset(h_message, 0, attr_index)
+def _get_channel_byte_attribute(h_message, attr_index):
+    return _get_byte_attribute_at_offset(h_message, 0, attr_index)
 
-def get_channel_int_attribute(h_message, attr_index):
-    return get_int_attribute_at_offset(h_message, 0, attr_index)
+def _get_channel_int_attribute(h_message, attr_index):
+    return _get_int_attribute_at_offset(h_message, 0, attr_index)
 
 def get_channel_type(h_message):
-    channel_type = get_channel_byte_attribute(h_message, 0)
-    return get_address_from_field(channel_type)
+    channel_type = _get_channel_byte_attribute(h_message, 0)
+    return _get_address_from_field(channel_type)
 
 def get_channel_nonce(h_message):
-    return get_channel_int_attribute(h_message, 1)
+    return _get_channel_int_attribute(h_message, 1)
 
 def get_channel_num_players(h_message):
-    num_players = get_channel_int_attribute(h_message, 2)
+    num_players = _get_channel_int_attribute(h_message, 2)
     if num_players != N_PLAYERS:
         raise NumPlayersError(num_players)
     return num_players
@@ -86,68 +86,78 @@ def assert_channel_num_players(h_message):
     get_channel_num_players(h_message)
 
 def get_channel_players(h_message):
-    player_a = get_channel_byte_attribute(h_message, 3)
-    player_b = get_channel_byte_attribute(h_message, 4)
-    return [get_address_from_field(player_a), get_address_from_field(player_b)]
+    player_a = _get_channel_byte_attribute(h_message, 3)
+    player_b = _get_channel_byte_attribute(h_message, 4)
+    return [_get_address_from_field(player_a), _get_address_from_field(player_b)]
 
 
 # State attribute getters
-def get_state_int_attribute(h_message, attr_index):
-    return get_int_attribute_at_offset(h_message, STATE_OFFSET, attr_index)
+def _get_state_int_attribute(h_message, attr_index):
+    return _get_int_attribute_at_offset(h_message, STATE_OFFSET, attr_index)
 
 def get_channel_state(h_message):
-    return get_state_int_attribute(h_message, 0)
+    return _get_state_int_attribute(h_message, 0)
 
 def get_state_turn_num(h_message):
-    return get_state_int_attribute(h_message, 1)
+    return _get_state_int_attribute(h_message, 1)
 
 def get_state_count(h_message):
-    return get_state_int_attribute(h_message, 2)
+    return _get_state_int_attribute(h_message, 2)
 
 def get_state_balance(h_message, player_index):
-    return get_state_int_attribute(h_message, 3 + player_index)
+    return _get_state_int_attribute(h_message, 3 + player_index)
 
 def increment_state_turn_num(h_message):
     turn_num = get_state_turn_num(h_message)
     turn_num += 1
-    return update_field(h_message, STATE_OFFSET, 1, int_to_field(turn_num))
+    return _update_field(h_message, STATE_OFFSET, 1, _int_to_field(turn_num))
 
 def increment_state_count(h_message):
     state = get_state_count(h_message)
     state += 1
-    return update_field(h_message, STATE_OFFSET, 2, int_to_field(state))
+    return _update_field(h_message, STATE_OFFSET, 2, _int_to_field(state))
 
 def increment_state_balance(h_message, player_index, delta):
     balance = get_state_balance(h_message, player_index)
     balance += delta
-    return update_field(h_message, STATE_OFFSET, 3 + player_index, int_to_field(balance))
+    return _update_field(h_message, STATE_OFFSET, 3 + player_index, _int_to_field(balance))
 
 # Game attribute getters
-def get_game_byte_attribute(h_message, attr_index):
-    return get_byte_attribute_at_offset(h_message, GAME_OFFSET, attr_index)
+def _get_game_byte_attribute(h_message, attr_index):
+    return _get_byte_attribute_at_offset(h_message, GAME_OFFSET, attr_index)
 
-def get_game_int_attribute(h_message, attr_index):
-    return get_int_attribute_at_offset(h_message, GAME_OFFSET, attr_index)
+def _get_game_int_attribute(h_message, attr_index):
+    return _get_int_attribute_at_offset(h_message, GAME_OFFSET, attr_index)
 
 def get_game_position(h_message):
-    return get_game_int_attribute(h_message, 0)
+    return _get_game_int_attribute(h_message, 0)
 
 def get_game_stake(h_message):
-    return get_game_int_attribute(h_message, 1)
+    return _get_game_int_attribute(h_message, 1)
 
 def get_game_precommit(h_message):
-    return get_game_byte_attribute(h_message, 2)
+    return _get_game_byte_attribute(h_message, 2)
 
 def get_game_bplay(h_message):
-    return get_game_int_attribute(h_message, 3)
+    return _get_game_int_attribute(h_message, 3)
 
 def get_game_aplay(h_message):
-    return get_game_int_attribute(h_message, 4)
+    return _get_game_int_attribute(h_message, 4)
 
 def get_game_salt(h_message):
-    return get_game_byte_attribute(h_message, 5)
+    return _get_game_byte_attribute(h_message, 5)
+
+def update_game_position(h_message, game_position):
+    return _update_field(h_message, GAME_OFFSET, 0, _int_to_field(game_position))
 
 def increment_game_position(h_message):
     game_position = get_game_position(h_message)
     game_position += 1
-    return update_field(h_message, GAME_OFFSET, 0, int_to_field(game_position))
+    return update_game_position(h_message, game_position)
+
+def new_game(h_message):
+    h_message = update_game_position(h_message, 0)
+    return h_message[: CHARS_PER_BYTE* (GAME_OFFSET + F_WIDTH * 2)]
+
+def update_move(h_message, move):
+    return _update_field(h_message, GAME_OFFSET, 3, _int_to_field(move))

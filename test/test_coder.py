@@ -28,7 +28,7 @@ def test_state_attributes():
 
 def test_int_to_field():
     num = 16
-    h_num = coder.int_to_field(num)
+    h_num = coder._int_to_field(num)
     assert h_num == '0000000000000000000000000000000000000000000000000000000000000010'
 
 def test_increment_state_turn_num():
