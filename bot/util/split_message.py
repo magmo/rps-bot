@@ -20,7 +20,8 @@ def main():
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
 
-    message = args.message
+    # Remove '0x'
+    message = args.message[2:]
     counter = 0
 
     print()

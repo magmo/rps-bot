@@ -39,26 +39,17 @@ class PlayerAError(PlayerError):
 BP = Blueprint('channel_message', __name__)
 
 def prefund_setup(hex_message):
-
     state_count = coder.get_state_count(hex_message)
-    actions = []
+    transformations = []
     if state_count:
         raise PlayerAError()
     else:
-        actions = [coder.increment_state_turn_num, coder.increment_channel_state]
+        transformations = [coder.increment_state_count]
 
-    response_message = hex_message
-    for action in actions:
-        response_message = action(response_message)
-
-    return response_message
+    return transformations
 
 def postfund_setup(hex_message):
-    state_count = coder.get_state_count(hex_message)
-    if state_count:
-        pass #postfundsetupB
-    else:
-        raise PlayerAError()
+    return prefund_setup(hex_message)
 
 def game(hex_message):
     pass
@@ -83,8 +74,15 @@ def ingest_message(hex_message):
         logging.warning('The message players do not include a bot')
         return response
 
-    hex_state = int(coder.get_channel_state(hex_message))
-    return PREFIX + CHANNEL_STATES[hex_state](hex_message)
+    channel_state = int(coder.get_channel_state(hex_message))
+    message_transformations = CHANNEL_STATES[channel_state](hex_message)
+
+    response_message = hex_message
+    message_transformations += [coder.increment_state_turn_num]
+    for transformation in message_transformations:
+        response_message = transformation(response_message)
+
+    return PREFIX + response_message
 
 @BP.route('/channel_message', methods=['POST'])
 def channel_message():

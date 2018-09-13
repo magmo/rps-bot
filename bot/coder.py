@@ -106,8 +106,8 @@ def increment_state_turn_num(h_message):
     turn_num += 1
     return update_field(h_message, CHANNEL_BYTES, 1, int_to_field(turn_num))
 
-def increment_channel_state(h_message):
-    state = get_channel_state(h_message)
+def increment_state_count(h_message):
+    state = get_state_count(h_message)
     state += 1
     return update_field(h_message, CHANNEL_BYTES, 2, int_to_field(state))
 
