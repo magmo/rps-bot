@@ -6,7 +6,7 @@ PREFIX = '0x'
 BOT_ADDRESS = '0000000000000000000000000000000000000b01'
 BP = Blueprint('channel_message', __name__)
 
-
+# Error definitions
 class PlayerError(Exception):
     pass
 
@@ -33,6 +33,8 @@ class PlayerChannelStateNotImplementedError(PlayerError):
 def undefined_game_position(game_position):
     raise PlayerGamePositionNotImplementedError(game_position)
 
+
+# Game position transitions
 def playera_pays_playerb(hex_message):
     stake = coder.get_game_stake(hex_message)
     hex_message = coder.increment_state_balance(hex_message, 0, -1 * stake)
@@ -56,6 +58,7 @@ GAME_STATES = (
 )
 
 
+# Channel state transitions
 def prefund_setup(hex_message):
     state_count = coder.get_state_count(hex_message)
     transformations = []
@@ -84,6 +87,7 @@ CHANNEL_STATES = [
 ]
 
 
+# State machine
 def ingest_message(hex_message):
     hex_message = hex_message[len(PREFIX):]
     coder.assert_channel_num_players(hex_message)
