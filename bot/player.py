@@ -33,10 +33,14 @@ class PlayerChannelStateNotImplementedError(PlayerError):
 def undefined_game_position(game_position):
     raise PlayerGamePositionNotImplementedError(game_position)
 
+def playera_pays_playerb(hex_message):
+    stake = coder.get_game_stake(hex_message)
+    hex_message = coder.increment_state_balance(hex_message, 0, -1 * stake)
+    return coder.increment_state_balance(hex_message, 1, stake)
 
 def game_propose(hex_message):
-    # Choose move and update balances
-    return []
+    #TODO: Choose move
+    return [playera_pays_playerb]
 
 GAME_STATES = (
     lambda x: undefined_game_position('GameResting'),

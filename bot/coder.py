@@ -104,6 +104,9 @@ def get_state_turn_num(h_message):
 def get_state_count(h_message):
     return get_state_int_attribute(h_message, 2)
 
+def get_state_balance(h_message, player_index):
+    return get_state_int_attribute(h_message, 3 + player_index)
+
 def increment_state_turn_num(h_message):
     turn_num = get_state_turn_num(h_message)
     turn_num += 1
@@ -113,6 +116,11 @@ def increment_state_count(h_message):
     state = get_state_count(h_message)
     state += 1
     return update_field(h_message, STATE_OFFSET, 2, int_to_field(state))
+
+def increment_state_balance(h_message, player_index, delta):
+    balance = get_state_balance(h_message, player_index)
+    balance += delta
+    return update_field(h_message, STATE_OFFSET, 3 + player_index, int_to_field(balance))
 
 # Game attribute getters
 def get_game_byte_attribute(h_message, attr_index):

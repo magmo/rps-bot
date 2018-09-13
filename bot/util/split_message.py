@@ -13,8 +13,10 @@ FIELDS = [
     'balance b',
     'position type',
     'stake',
-    'game field',
-    'game field'
+    'game precommit',
+    'bPlay',
+    'aPlay',
+    'salt'
 ]
 def main():
     parser = argparse.ArgumentParser()
