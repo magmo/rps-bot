@@ -1,6 +1,7 @@
 from flask import Blueprint, request
 from flask.logging import logging
-import bot.coder as coder
+from bot import coder
+from bot import wallet
 
 PREFIX = '0x'
 BOT_ADDRESS = '0000000000000000000000000000000000000b01'
@@ -97,6 +98,8 @@ def ingest_message(hex_message):
     if BOT_ADDRESS not in players:
         logging.warning('The message players do not include a bot')
         return response
+
+    wallet.get_last_message_for_channel(hex_message)
 
     channel_state = coder.get_channel_state(hex_message)
     message_transformations = CHANNEL_STATES[channel_state](hex_message)
