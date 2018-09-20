@@ -10,9 +10,10 @@ def create_app(test_config=None):
 
     def set_db():
         firebase_admin.initialize_app(options={
-            'databaseURL': 'https://rock-paper-scissors-dev.firebaseio.com/'
+            'databaseURL': 'https://rock-paper-scissors-dev.firebaseio.com',
+            'projectId': 'rock-paper-scissors-dev'
         })
-        g.db = db.reference('rock-paper-scissors-dev')
+        g.db = db.reference()
 
     app.before_request(set_db)
 
