@@ -16,6 +16,10 @@ def test_channel_message_duplicate_message(client):
 def test_create_challenge(client):
     assert client.get('/create_challenge').status_code == 200
 
+def test_update_challenge_timestamp(client):
+    assert client.get('/update_challenge_timestamp').status_code == 200
+
+
 # Black-box testing
 def state_machine_transition(state, new_state):
     assert player.transition_from_state(state) == new_state
