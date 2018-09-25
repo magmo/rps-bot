@@ -13,6 +13,9 @@ def test_channel_message_duplicate_message(client):
     assert response.status_code == 200
     assert response.json['message'] == f'Duplicate message received {SAMPLE_MESSAGE}'
 
+def test_create_challenge(client):
+    assert client.get('/create_challenge').status_code == 200
+
 # Black-box testing
 def state_machine_transition(state, new_state):
     assert player.transition_from_state(state) == new_state

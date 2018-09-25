@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask.logging import logging
 from bot import coder
 from bot.config import BOT_ADDRESS, hex_to_str, str_to_hex
-from bot import wallet
+from bot import challenge, wallet
 
 BP = Blueprint('channel_message', __name__)
 
@@ -132,4 +132,9 @@ def channel_message():
 @BP.route('/clear_wallet_channels')
 def clear_wallet():
     wallet.clear_wallet_channels()
-    return ''
+    return jsonify({})
+
+@BP.route('/create_challenge')
+def create_challenge():
+    challenge.create_new_challenge()
+    return jsonify({})
