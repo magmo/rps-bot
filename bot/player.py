@@ -1,10 +1,9 @@
 from flask import Blueprint, request
 from flask.logging import logging
 from bot import coder
+from bot.config import BOT_ADDRESS, hex_to_str, str_to_hex
 from bot import wallet
 
-PREFIX = '0x'
-BOT_ADDRESS = '0000000000000000000000000000000000000b01'
 BP = Blueprint('channel_message', __name__)
 
 # Error definitions
@@ -89,18 +88,7 @@ CHANNEL_STATES = [
 
 
 # State machine
-def ingest_message(hex_message):
-    hex_message = hex_message[len(PREFIX):]
-    coder.assert_channel_num_players(hex_message)
-    response = ''
-
-    players = coder.get_channel_players(hex_message)
-    if BOT_ADDRESS not in players:
-        logging.warning('The message players do not include a bot')
-        return response
-
-    wallet.get_last_message_for_channel(hex_message)
-
+def transition_from_state(hex_message):
     channel_state = coder.get_channel_state(hex_message)
     message_transformations = CHANNEL_STATES[channel_state](hex_message)
 
@@ -109,10 +97,21 @@ def ingest_message(hex_message):
     for transformation in message_transformations:
         response_message = transformation(response_message)
 
-    return PREFIX + response_message
+    return response_message
 
 @BP.route('/channel_message', methods=['POST'])
 def channel_message():
     hex_message = request.form['hex_message']
-    return ingest_message(hex_message)
+    hex_message = hex_to_str(hex_message)
+    coder.assert_channel_num_players(hex_message)
+    response = ''
+
+    players = coder.get_channel_players(hex_message)
+    if BOT_ADDRESS not in players:
+        logging.warning('The message players do not include a bot')
+        return response
+
+    last_message = wallet.get_last_message_for_channel(hex_message)
+
+    return str_to_hex(transition_from_state(hex_message))
     
