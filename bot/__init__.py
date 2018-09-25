@@ -6,7 +6,8 @@ from firebase_admin import db
 
 def create_app(test_config=None):
     app = Flask(__name__)
-    app.config.update(test_config)
+    if test_config:
+        app.config.update(test_config)
 
     try:
         firebase_admin.get_app()
