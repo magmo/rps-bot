@@ -1,3 +1,6 @@
+from web3 import Web3
+from bot.config import str_to_checksum_address
+
 CHARS_PER_BYTE = 2
 N_PLAYERS = 2
 F_WIDTH = 32
@@ -90,6 +93,19 @@ def get_channel_players(h_message):
     player_b = _get_channel_byte_attribute(h_message, 4)
     return [_get_address_from_field(player_a), _get_address_from_field(player_b)]
 
+def get_channel_id(h_message):
+    w3 = Web3()
+    channel_type = get_channel_type(h_message)
+    channel_nonce = get_channel_nonce(h_message)
+    channel_players = get_channel_players(h_message)
+
+    channel_type =  str_to_checksum_address(channel_type)
+    channel_type = w3.toChecksumAddress(channel_type)
+    channel_players = list(map(str_to_checksum_address, channel_players))
+
+    return Web3().soliditySha3(
+        ['address', 'uint256', 'address[]'],
+        [channel_type, channel_nonce, channel_players]).hex()
 
 # State attribute getters
 def _get_state_int_attribute(h_message, attr_index):

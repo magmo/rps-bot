@@ -1,9 +1,9 @@
-from flask import Blueprint, request
+from flask import Blueprint, jsonify, request
 from flask.logging import logging
-import bot.coder as coder
+from bot import coder
+from bot.config import BOT_ADDRESS, hex_to_str, str_to_hex
+from bot import wallet
 
-PREFIX = '0x'
-BOT_ADDRESS = '0000000000000000000000000000000000000b01'
 BP = Blueprint('channel_message', __name__)
 
 # Error definitions
@@ -88,16 +88,7 @@ CHANNEL_STATES = [
 
 
 # State machine
-def ingest_message(hex_message):
-    hex_message = hex_message[len(PREFIX):]
-    coder.assert_channel_num_players(hex_message)
-    response = ''
-
-    players = coder.get_channel_players(hex_message)
-    if BOT_ADDRESS not in players:
-        logging.warning('The message players do not include a bot')
-        return response
-
+def transition_from_state(hex_message):
     channel_state = coder.get_channel_state(hex_message)
     message_transformations = CHANNEL_STATES[channel_state](hex_message)
 
@@ -106,10 +97,39 @@ def ingest_message(hex_message):
     for transformation in message_transformations:
         response_message = transformation(response_message)
 
-    return PREFIX + response_message
+    return response_message
+
+def set_response_message(response, message):
+    response['message'] = message
 
 @BP.route('/channel_message', methods=['POST'])
 def channel_message():
     hex_message = request.form['hex_message']
-    return ingest_message(hex_message)
-    
+    hex_message = hex_to_str(hex_message)
+    coder.assert_channel_num_players(hex_message)
+    d_response = {}
+
+    players = coder.get_channel_players(hex_message)
+    if BOT_ADDRESS not in players:
+        warning = 'The message players do not include a bot'
+        logging.warning(warning)
+        set_response_message(d_response, warning)
+        return jsonify(d_response)
+
+    hex_last_message = wallet.get_last_message_for_channel(hex_message)
+    last_message = hex_to_str(hex_last_message)
+    if last_message == hex_message:
+        warning = f'Duplicate message received {hex_last_message}'
+        logging.warning(warning)
+        set_response_message(d_response, warning)
+        return jsonify(d_response)
+
+    wallet.record_received_message(hex_message)
+
+    new_state = str_to_hex(transition_from_state(hex_message))
+    return jsonify(set_response_message(d_response, new_state))
+
+@BP.route('/clear_wallet_channels')
+def clear_wallet():
+    wallet.clear_wallet_channels()
+    return ''

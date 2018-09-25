@@ -34,3 +34,7 @@ def test_int_to_field():
 def test_increment_state_turn_num():
     response_message = coder.increment_state_turn_num(SAMPLE_MESSAGE)
     assert response_message == INCREMENT_TURN_NUM_MESSAGE
+
+def test_get_channel_id():
+    channel_id = coder.get_channel_id(SAMPLE_MESSAGE)
+    assert channel_id == '0xd3572fdade24a4c79018df7a59634a3c312f70fe0569cf14442cc9f8cd86c770'
