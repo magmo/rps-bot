@@ -108,10 +108,18 @@ def channel_message():
 
     players = coder.get_channel_players(hex_message)
     if BOT_ADDRESS not in players:
-        logging.warning('The message players do not include a bot')
+        response = 'The message players do not include a bot'
+        logging.warning(response)
         return response
 
     last_message = wallet.get_last_message_for_channel(hex_message)
+    last_message = hex_to_str(last_message)
+    if last_message == hex_message:
+        response = f'Duplicate message received {last_message}'
+        logging.warning(response)
+        return response
+
+    wallet.record_received_message(hex_message)
 
     return str_to_hex(transition_from_state(hex_message))
     
