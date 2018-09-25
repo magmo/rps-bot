@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, jsonify, request
 from flask.logging import logging
 from bot import coder
 from bot.config import BOT_ADDRESS, hex_to_str, str_to_hex
@@ -99,27 +99,37 @@ def transition_from_state(hex_message):
 
     return response_message
 
+def set_response_message(response, message):
+    response['message'] = message
+
 @BP.route('/channel_message', methods=['POST'])
 def channel_message():
     hex_message = request.form['hex_message']
     hex_message = hex_to_str(hex_message)
     coder.assert_channel_num_players(hex_message)
-    response = ''
+    d_response = {}
 
     players = coder.get_channel_players(hex_message)
     if BOT_ADDRESS not in players:
-        response = 'The message players do not include a bot'
-        logging.warning(response)
-        return response
+        warning = 'The message players do not include a bot'
+        logging.warning(warning)
+        set_response_message(d_response, warning)
+        return jsonify(d_response)
 
-    last_message = wallet.get_last_message_for_channel(hex_message)
-    last_message = hex_to_str(last_message)
+    hex_last_message = wallet.get_last_message_for_channel(hex_message)
+    last_message = hex_to_str(hex_last_message)
     if last_message == hex_message:
-        response = f'Duplicate message received {last_message}'
-        logging.warning(response)
-        return response
+        warning = f'Duplicate message received {hex_last_message}'
+        logging.warning(warning)
+        set_response_message(d_response, warning)
+        return jsonify(d_response)
 
     wallet.record_received_message(hex_message)
 
-    return str_to_hex(transition_from_state(hex_message))
-    
+    new_state = str_to_hex(transition_from_state(hex_message))
+    return jsonify(set_response_message(d_response, new_state))
+
+@BP.route('/clear_wallet_channels')
+def clear_wallet():
+    wallet.clear_wallet_channels()
+    return ''

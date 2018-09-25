@@ -38,6 +38,10 @@ def get_wallet():
 
     return (list(wrapped_wallet.values())[0], list(wrapped_wallet.keys())[0])
 
+def clear_wallet_channels():
+    _, wallet_key = get_wallet()
+    get_wallet_ref(wallet_key).child(K_CHANNELS).delete()
+
 def get_last_message_for_channel(hex_message):
     wallet = get_wallet()[0]
     channels = wallet.get(K_CHANNELS)
@@ -47,7 +51,7 @@ def get_last_message_for_channel(hex_message):
     channel_id = coder.get_channel_id(hex_message)
     last_message = None
     try:
-        last_message = channels[channel_id][K_RECEIVED]
+        last_message = channels[channel_id][K_RECEIVED][K_MESSAGE]
     except KeyError:
         pass
 
