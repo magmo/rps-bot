@@ -16,11 +16,13 @@ NEW_CHALLENGE = {
     K_UPDATED: NOW
 }
 
-def get_challenge_ref():
-    return g.db.child('challenges').child(str_to_hex(BOT_ADDRESS))
+def get_challenge_ref(fb_db=None):
+    if not fb_db:
+        fb_db = g.db
+    return fb_db.child('challenges').child(str_to_hex(BOT_ADDRESS))
 
 def create_new_challenge():
     get_challenge_ref().set(NEW_CHALLENGE)
 
-def update_challenge_timestamp():
-    get_challenge_ref().child(K_UPDATED).set(get_now_ms())
+def update_challenge_timestamp(fb_db=None):
+    get_challenge_ref(fb_db).child(K_UPDATED).set(get_now_ms())

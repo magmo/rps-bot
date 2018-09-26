@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask.logging import logging
+from time import sleep
+
 from bot import coder
 from bot.config import BOT_ADDRESS, hex_to_str, str_to_hex
 from bot import challenge, wallet

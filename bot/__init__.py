@@ -1,7 +1,10 @@
-from flask import Flask
-from flask import g
+from flask import Flask, g
 import firebase_admin
 from firebase_admin import db
+from threading import Thread
+from time import sleep
+
+from bot import challenge
 
 
 def create_app(test_config=None):
@@ -21,6 +24,18 @@ def create_app(test_config=None):
         g.db = db.reference()
 
     app.before_request(set_db)
+
+
+    @app.before_first_request
+    def start_challenge_update():
+        def run_challenge_update():
+            while True:
+                challenge.update_challenge_timestamp(db.reference())
+                sleep(4)
+
+        if not app.config.get('TESTING'):
+            thread = Thread(target=run_challenge_update)
+            thread.start()
 
     from bot import player
     app.register_blueprint(player.BP)
