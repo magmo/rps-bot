@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 from flask.logging import logging
-from time import sleep
 
 from bot import coder
 from bot.config import BOT_ADDRESS, hex_to_str, str_to_hex
@@ -106,7 +105,7 @@ def set_response_message(response, message):
 
 @BP.route('/channel_message', methods=['POST'])
 def channel_message():
-    hex_message = request.form['data']
+    hex_message = request.get_json()['data']
     hex_message = hex_to_str(hex_message)
     coder.assert_channel_num_players(hex_message)
     d_response = {}
@@ -129,6 +128,7 @@ def channel_message():
     wallet.record_received_message(hex_message)
 
     new_state = str_to_hex(transition_from_state(hex_message))
+    logging.info(f'Responding with {new_state}')
     return jsonify(set_response_message(d_response, new_state))
 
 @BP.route('/clear_wallet_channels')
