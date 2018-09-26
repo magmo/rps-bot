@@ -106,7 +106,7 @@ def set_response_message(response, message):
 
 @BP.route('/channel_message', methods=['POST'])
 def channel_message():
-    hex_message = request.form['hex_message']
+    hex_message = request.form['data']
     hex_message = hex_to_str(hex_message)
     coder.assert_channel_num_players(hex_message)
     d_response = {}

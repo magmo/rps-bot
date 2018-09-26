@@ -5,11 +5,11 @@ SAMPLE_MESSAGE = '0x000000000000000000000000c1912fee45d61c87cc5ea59dae31190fffff
 
 def test_channel_message_clean_wallet(client):
     assert client.get('/clear_wallet_channels').status_code == 200
-    response = client.post('/channel_message', data={'hex_message': SAMPLE_MESSAGE})
+    response = client.post('/channel_message', data={'data': SAMPLE_MESSAGE})
     assert response.status_code == 200
 
 def test_channel_message_duplicate_message(client):
-    response = client.post('/channel_message', data={'hex_message': SAMPLE_MESSAGE})
+    response = client.post('/channel_message', data={'data': SAMPLE_MESSAGE})
     assert response.status_code == 200
     assert response.json['message'] == f'Duplicate message received {SAMPLE_MESSAGE}'
 
