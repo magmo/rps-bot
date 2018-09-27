@@ -6,6 +6,6 @@ def register(_linter):
 def transform(func):
     if func.name == 'logger':
         for prop in ['debug', 'info', 'warning', 'error', 'setLevel']:
-            func.instance_attrs[prop] = extract_node('def {name}(arg): return'.format(name=prop))
+            func.instance_attrs[prop] = extract_node(f'def {prop}(arg): return')
 
 MANAGER.register_transform(scoped_nodes.FunctionDef, transform)

@@ -1,5 +1,4 @@
 from flask import current_app, Blueprint, jsonify, request
-from flask.logging import logging
 
 from bot import coder
 from bot.config import BOT_ADDRESS, hex_to_str, str_to_hex
@@ -122,14 +121,14 @@ def channel_message():
     last_message = hex_to_str(hex_last_message)
     if last_message == hex_message:
         warning = f'Duplicate message received {hex_last_message}'
-        logging.warning(warning)
+        current_app.logger.warning(warning)
         set_response_message(d_response, warning)
         return jsonify(d_response)
 
     wallet.record_received_message(hex_message)
 
     new_state = str_to_hex(transition_from_state(hex_message))
-    logging.info(f'Responding with {new_state}')
+    current_app.logger.info(f'Responding with {new_state}')
     return jsonify(set_response_message(d_response, new_state))
 
 @BP.route('/clear_wallet_channels')
