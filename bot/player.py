@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import current_app, Blueprint, jsonify, request
 from flask.logging import logging
 
 from bot import coder
@@ -45,10 +45,10 @@ def play_move(hex_message):
     # Always play rock for now
     return coder.update_move(hex_message, 0)
 
-def from_game_propose(hex_message):
+def from_game_propose(_hex_message):
     return [playera_pays_playerb, play_move, coder.increment_game_position]
 
-def from_game_reveal(hex_message):
+def from_game_reveal(_hex_message):
     return [coder.new_game]
 
 GAME_STATES = (
@@ -77,7 +77,7 @@ def game(hex_message):
     game_position = coder.get_game_position(hex_message)
     return GAME_STATES[game_position](hex_message)
 
-def conclude(hex_message):
+def conclude(_hex_message):
     raise PlayerChannelStateNotImplementedError('conclude')
 
 CHANNEL_STATES = [
@@ -113,9 +113,10 @@ def channel_message():
     players = coder.get_channel_players(hex_message)
     if BOT_ADDRESS not in players:
         warning = 'The message players do not include a bot'
-        logging.warning(warning)
+        current_app.logger.warning(warning)
         set_response_message(d_response, warning)
         return jsonify(d_response)
+
 
     hex_last_message = wallet.get_last_message_for_channel(hex_message)
     last_message = hex_to_str(hex_last_message)

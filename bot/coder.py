@@ -39,7 +39,7 @@ class NumPlayersError(CoderError):
         return f'Rock-paper-scissors requires exactly ' + \
             '{N_PLAYERS} players. {self.num_players} provided.'
 
-def _int_to_field(num):
+def int_to_field(num):
     h_num = format(num, 'x')
     return '{:0>64}'.format(h_num)
 
@@ -94,13 +94,13 @@ def get_channel_players(h_message):
     return [_get_address_from_field(player_a), _get_address_from_field(player_b)]
 
 def get_channel_id(h_message):
-    w3 = Web3()
+    w3_instance = Web3()
     channel_type = get_channel_type(h_message)
     channel_nonce = get_channel_nonce(h_message)
     channel_players = get_channel_players(h_message)
 
-    channel_type =  str_to_checksum_address(channel_type)
-    channel_type = w3.toChecksumAddress(channel_type)
+    channel_type = str_to_checksum_address(channel_type)
+    channel_type = w3_instance.toChecksumAddress(channel_type)
     channel_players = list(map(str_to_checksum_address, channel_players))
 
     return Web3().soliditySha3(
@@ -126,17 +126,17 @@ def get_state_balance(h_message, player_index):
 def increment_state_turn_num(h_message):
     turn_num = get_state_turn_num(h_message)
     turn_num += 1
-    return _update_field(h_message, STATE_OFFSET, 1, _int_to_field(turn_num))
+    return _update_field(h_message, STATE_OFFSET, 1, int_to_field(turn_num))
 
 def increment_state_count(h_message):
     state = get_state_count(h_message)
     state += 1
-    return _update_field(h_message, STATE_OFFSET, 2, _int_to_field(state))
+    return _update_field(h_message, STATE_OFFSET, 2, int_to_field(state))
 
 def increment_state_balance(h_message, player_index, delta):
     balance = get_state_balance(h_message, player_index)
     balance += delta
-    return _update_field(h_message, STATE_OFFSET, 3 + player_index, _int_to_field(balance))
+    return _update_field(h_message, STATE_OFFSET, 3 + player_index, int_to_field(balance))
 
 # Game attribute getters
 def _get_game_byte_attribute(h_message, attr_index):
@@ -164,7 +164,7 @@ def get_game_salt(h_message):
     return _get_game_byte_attribute(h_message, 5)
 
 def update_game_position(h_message, game_position):
-    return _update_field(h_message, GAME_OFFSET, 0, _int_to_field(game_position))
+    return _update_field(h_message, GAME_OFFSET, 0, int_to_field(game_position))
 
 def increment_game_position(h_message):
     game_position = get_game_position(h_message)
@@ -176,4 +176,4 @@ def new_game(h_message):
     return h_message[: CHARS_PER_BYTE* (GAME_OFFSET + F_WIDTH * 2)]
 
 def update_move(h_message, move):
-    return _update_field(h_message, GAME_OFFSET, 3, _int_to_field(move))
+    return _update_field(h_message, GAME_OFFSET, 3, int_to_field(move))
