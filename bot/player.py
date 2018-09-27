@@ -1,8 +1,7 @@
-from flask import current_app, Blueprint, jsonify, request
+from flask import Blueprint, current_app, g, jsonify, request
 
-from bot import coder
-from bot.config import BOT_ADDRESS, hex_to_str, str_to_hex
-from bot import challenge, wallet
+from bot import challenge, coder, fb_message, wallet
+from bot.config import BOT_ADDRESS, hex_to_str
 
 BP = Blueprint('channel_message', __name__)
 
@@ -127,8 +126,9 @@ def channel_message():
 
     wallet.record_received_message(hex_message)
 
-    new_state = str_to_hex(transition_from_state(hex_message))
+    new_state = transition_from_state(hex_message)
     current_app.logger.info(f'Responding with {new_state}')
+    fb_message.message_opponent(new_state, g.db)
     return jsonify(set_response_message(d_response, new_state))
 
 @BP.route('/clear_wallet_channels')

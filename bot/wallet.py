@@ -1,6 +1,6 @@
 from flask import g
 from bot.config import BOT_ADDRESS, BOT_PRIVATE_KEY, WALLET_UID
-from bot.config import hex_to_str, str_to_hex
+from bot.config import str_to_hex
 
 from bot import coder
 
