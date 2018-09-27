@@ -15,6 +15,12 @@ def create_app(test_config=None):
     if test_config:
         app.config.update(test_config)
 
+    app.logger.setLevel(logging.INFO)
+    @app.before_request
+    def _log_request_info():
+        app.logger.debug(f'Headers: {request.headers}')
+        app.logger.debug(f'Body: {request.get_data()}')
+
     try:
         firebase_admin.get_app()
     except ValueError:
@@ -23,20 +29,9 @@ def create_app(test_config=None):
             'projectId': 'rock-paper-scissors-dev'
         })
 
-    def set_db():
-        g.db = db.reference()
-
-    app.before_request(set_db)
-
-    app.logger.setLevel(logging.INFO)
-    @app.before_request
-    def log_request_info():
-        app.logger.debug(f'Headers: {request.headers}')
-        app.logger.debug(f'Body: {request.get_data()}')
-
 
     @app.before_first_request
-    def start_challenge_update():
+    def _start_challenge_update():
         def run_challenge_update():
             while True:
                 challenge.update_challenge_timestamp(db.reference())
@@ -45,6 +40,10 @@ def create_app(test_config=None):
         if not app.config.get('TESTING'):
             thread = Thread(target=run_challenge_update)
             thread.start()
+
+    def set_db():
+        g.db = db.reference()
+    app.before_request(set_db)
 
     from bot import player
     app.register_blueprint(player.BP)
