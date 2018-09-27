@@ -3,10 +3,10 @@ from bot.config import BOT_ADDRESS, str_to_hex
 
 K_MESSAGES = 'messages'
 
-def _get_opponent_ref(addr, fb):
-    return fb.child(K_MESSAGES).child(str_to_hex(addr))
+def _get_opponent_ref(addr, fb_ref):
+    return fb_ref.child(K_MESSAGES).child(str_to_hex(addr))
 
-def message_opponent(message, fb):
+def message_opponent(message, fb_ref):
     hex_message = str_to_hex(message)
     signature = ''
     # Are there other queues?
@@ -21,5 +21,5 @@ def message_opponent(message, fb):
     players = coder.get_channel_players(message)
     opponents = list(filter(lambda player: player != BOT_ADDRESS, players))
     opponent_address = opponents[0]
-    ref = _get_opponent_ref(opponent_address, fb)
+    ref = _get_opponent_ref(opponent_address, fb_ref)
     ref.push(d_message)

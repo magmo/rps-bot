@@ -48,7 +48,9 @@ pycryptodome==3.6.6
 pylint==2.1.1
 pytest==3.8.0
 pytest-env==0.6.2
+pytest-mock==1.10.0
 pytest-pythonpath==0.7.3
+python-dotenv==0.9.1
 pytz==2018.5
 requests==2.19.1
 rlp==1.0.2
