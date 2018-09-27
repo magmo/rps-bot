@@ -3,13 +3,17 @@ from bot.config import BOT_ADDRESS, str_to_hex
 
 K_MESSAGES = 'messages'
 
-def _get_opponent_ref(addr, fb_ref):
+def _get_addr_ref(addr, fb_ref):
     return fb_ref.child(K_MESSAGES).child(str_to_hex(addr))
+
+def message_consumed(key, fb_ref):
+    if not key:
+        return
+    _get_addr_ref(BOT_ADDRESS, fb_ref).child(key).delete()
 
 def message_opponent(message, fb_ref):
     hex_message = str_to_hex(message)
     signature = ''
-    # Are there other queues?
     queue = 'GAME_ENGINE'
 
     d_message = {
@@ -21,5 +25,5 @@ def message_opponent(message, fb_ref):
     players = coder.get_channel_players(message)
     opponents = list(filter(lambda player: player != BOT_ADDRESS, players))
     opponent_address = opponents[0]
-    ref = _get_opponent_ref(opponent_address, fb_ref)
+    ref = _get_addr_ref(opponent_address, fb_ref)
     ref.push(d_message)

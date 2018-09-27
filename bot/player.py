@@ -103,7 +103,10 @@ def set_response_message(response, message):
 
 @BP.route('/channel_message', methods=['POST'])
 def channel_message():
-    hex_message = request.get_json()['data']
+    request_json = request.get_json()
+    hex_message = request_json['data']
+    fb_message_key = request_json.get('message_key')
+
     hex_message = hex_to_str(hex_message)
     coder.assert_channel_num_players(hex_message)
     d_response = {}
@@ -128,6 +131,8 @@ def channel_message():
 
     new_state = transition_from_state(hex_message)
     current_app.logger.info(f'Responding with {new_state}')
+    
+    fb_message.message_consumed(fb_message_key, g.db)
     fb_message.message_opponent(new_state, g.db)
     return jsonify(set_response_message(d_response, new_state))
 
