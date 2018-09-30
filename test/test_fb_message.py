@@ -15,5 +15,5 @@ def test_message_opponent(app, mocker):
 def test_message_consumed(app, mocker):
     # Need to get a valid key for an end to end test
     mocker.patch('firebase_admin.db.Reference.delete')
-    bot.fb_message.message_consumed('key123', db.reference())
+    bot.fb_message.message_consumed('-LNe4HoVe29ILP0kT177', db.reference())
     firebase_admin.db.Reference.delete.assert_called_once() # pylint: disable=no-member

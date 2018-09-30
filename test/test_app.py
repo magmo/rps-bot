@@ -5,7 +5,7 @@ SAMPLE_MESSAGE = '0x000000000000000000000000c1912fee45d61c87cc5ea59dae31190fffff
 
 def test_channel_message_clean_wallet(client):
     assert client.get('/clear_wallet_channels').status_code == 200
-    response = client.post('/channel_message', json={'data': SAMPLE_MESSAGE})
+    response = client.post('/channel_message', json={'data': SAMPLE_MESSAGE, 'message_key': 'key123'})
     assert response.status_code == 200
 
 def test_channel_message_duplicate_message(client):

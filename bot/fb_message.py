@@ -7,8 +7,6 @@ def _get_addr_ref(addr, fb_ref):
     return fb_ref.child(K_MESSAGES).child(str_to_hex(addr))
 
 def message_consumed(key, fb_ref):
-    if not key:
-        return
     _get_addr_ref(BOT_ADDRESS, fb_ref).child(key).delete()
 
 def message_opponent(message, fb_ref):
