@@ -1,5 +1,6 @@
 from bot import coder
 from bot.config import BOT_ADDRESS, str_to_hex
+from bot.wallet import sign_message
 
 K_MESSAGES = 'messages'
 
@@ -11,7 +12,7 @@ def message_consumed(key, fb_ref):
 
 def message_opponent(message, fb_ref):
     hex_message = str_to_hex(message)
-    signature = ''
+    signature = sign_message(hex_message)
     queue = 'GAME_ENGINE'
 
     d_message = {

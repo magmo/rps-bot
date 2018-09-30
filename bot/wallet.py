@@ -1,4 +1,8 @@
 from flask import g
+from web3.auto import w3
+from eth_account import Account
+from eth_account.messages import defunct_hash_message
+
 from bot.config import BOT_ADDRESS, BOT_PRIVATE_KEY, WALLET_UID
 from bot.config import str_to_hex
 
@@ -71,3 +75,9 @@ def record_received_message(hex_message):
     wallet[K_CHANNELS] = channels
 
     get_wallet_ref(wallet_key).update(wallet)
+
+def sign_message(message):
+    message_hash = defunct_hash_message(hexstr=message)
+    acct = Account.privateKeyToAccount(str_to_hex(BOT_PRIVATE_KEY))
+    signed_message = acct.signHash(message_hash)
+    return signed_message['signature'].hex()
