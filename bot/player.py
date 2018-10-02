@@ -104,7 +104,6 @@ def set_response_message(message='', response=dict()):
 
 def game_engine_message(message):
     d_response = {}
-    wallet.record_received_message(message)
 
     hex_last_message = wallet.get_last_message_for_channel(message)
     last_message = hex_to_str(hex_last_message)
@@ -113,6 +112,7 @@ def game_engine_message(message):
         current_app.logger.warning(warning)
         set_response_message(warning, d_response)
         return d_response
+    wallet.record_received_message(message)
 
     coder.assert_channel_num_players(message)
     players = coder.get_channel_players(message)
@@ -122,8 +122,8 @@ def game_engine_message(message):
         return set_response_message(warning, d_response)
 
     new_state = transition_from_state(message)
-    current_app.logger.info(f'Responding with {new_state}')
 
+    current_app.logger.info(f'Sending opponent: {new_state}')
     fb_message.message_opponent(new_state, g.db)
     return set_response_message(new_state, d_response)
 
