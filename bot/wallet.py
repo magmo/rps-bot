@@ -92,7 +92,7 @@ def fund_adjudicator(contract_addr):
 
     provider = Web3.HTTPProvider(infura_endpoint)
     o_w3 = Web3(provider)
-    nonce = o_w3.eth.getTransactionCount(from_addr) + 1 #pylint: disable=E1101
+    nonce = o_w3.eth.getTransactionCount(from_addr) #pylint: disable=E1101
     transaction = {
         'nonce': nonce,
         'from': from_addr,
