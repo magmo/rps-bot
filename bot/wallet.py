@@ -1,10 +1,12 @@
 from flask import g
-from web3.auto import w3
 from eth_account import Account
 from eth_account.messages import defunct_hash_message
 
-from bot.config import BOT_ADDRESS, BOT_PRIVATE_KEY, WALLET_UID
-from bot.config import str_to_hex
+import web3
+from web3 import Web3
+
+from bot.config import BOT_ADDRESS, BOT_PRIVATE_KEY, BOT_STAKE, WALLET_UID
+from bot.config import str_to_hex, str_to_checksum_address
 
 from bot import coder
 
@@ -21,6 +23,9 @@ NEW_WALLET = dict(
     privateKey=BOT_PRIVATE_KEY,
     uid=str_to_hex(WALLET_UID)
 )
+
+def _get_account():
+    return Account.privateKeyToAccount(str_to_hex(BOT_PRIVATE_KEY)) #pylint: disable=E1120
 
 def get_wallets_ref():
     return g.db.child(K_WALLETS)
@@ -78,6 +83,23 @@ def record_received_message(hex_message):
 
 def sign_message(message):
     message_hash = defunct_hash_message(hexstr=message)
-    acct = Account.privateKeyToAccount(str_to_hex(BOT_PRIVATE_KEY))
+    acct = _get_account()
     signed_message = acct.signHash(message_hash)
     return signed_message['signature'].hex()
+
+def fund_adjudicator(_contract_addr=None):
+    hardcoded_addr = str_to_checksum_address('cdb594a32b1cc3479d8746279712c39d18a07fc0')
+    infura_secret = '8b9c95c75aa14139aa9a47666ee8f647'
+    infura_endpoint = 'https://ropsten.infura.io/v3/2972b45cf9444a6d8f8695f6bdbc672f'
+    provider = Web3.HTTPProvider(infura_endpoint)
+    w3 = Web3(provider)
+    transaction = {
+        'nonce': 2,
+        'to': hardcoded_addr,
+        'from': str_to_checksum_address(BOT_ADDRESS),
+        'value': BOT_STAKE,
+        'gas': 100000,
+        'gasPrice': w3.eth.gasPrice,
+    }
+    signed = w3.eth.account.signTransaction(transaction, BOT_PRIVATE_KEY)
+    w3.eth.sendRawTransaction(signed.rawTransaction)
