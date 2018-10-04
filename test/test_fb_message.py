@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import db
 
 import bot.fb_message
-from bot.config import str_to_hex
+from bot.util import str_to_hex
 
 def test_message_opponent(app, mocker):
     #pylint: disable=C0301

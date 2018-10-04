@@ -2,11 +2,10 @@ from flask import g
 from eth_account import Account
 from eth_account.messages import defunct_hash_message
 
-import web3
 from web3 import Web3
 
-from bot.config import BOT_ADDRESS, BOT_PRIVATE_KEY, BOT_STAKE, WALLET_UID
-from bot.config import str_to_hex, str_to_checksum_address
+from bot.config import BOT_ADDRESS, BOT_PRIVATE_KEY, BOT_STAKE, STAKES_IN_FUNDING, WALLET_UID
+from bot.util import str_to_hex, str_to_checksum_address
 
 from bot import coder
 
@@ -87,19 +86,23 @@ def sign_message(message):
     signed_message = acct.signHash(message_hash)
     return signed_message['signature'].hex()
 
-def fund_adjudicator(_contract_addr=None):
-    hardcoded_addr = str_to_checksum_address('cdb594a32b1cc3479d8746279712c39d18a07fc0')
-    infura_secret = '8b9c95c75aa14139aa9a47666ee8f647'
+def fund_adjudicator(contract_addr=None):
+    #hardcoded_addr = str_to_checksum_address('cdb594a32b1cc3479d8746279712c39d18a07fc0')
     infura_endpoint = 'https://ropsten.infura.io/v3/2972b45cf9444a6d8f8695f6bdbc672f'
+    from_addr = str_to_checksum_address(BOT_ADDRESS)
+    to_addr = str_to_checksum_address(contract_addr)
+
     provider = Web3.HTTPProvider(infura_endpoint)
-    w3 = Web3(provider)
+    o_w3 = Web3(provider)
+    nonce = o_w3.eth.getTransactionCount(from_addr) + 1 #pylint: disable=E1101
     transaction = {
-        'nonce': 2,
-        'to': hardcoded_addr,
-        'from': str_to_checksum_address(BOT_ADDRESS),
-        'value': BOT_STAKE,
+        'nonce': nonce,
+        'from': from_addr,
+        'to': to_addr,
+        'value': BOT_STAKE * STAKES_IN_FUNDING,
         'gas': 100000,
-        'gasPrice': w3.eth.gasPrice,
+        'gasPrice': o_w3.eth.gasPrice #pylint: disable=E1101
     }
-    signed = w3.eth.account.signTransaction(transaction, BOT_PRIVATE_KEY)
-    w3.eth.sendRawTransaction(signed.rawTransaction)
+    signed = o_w3.eth.account.signTransaction(transaction, BOT_PRIVATE_KEY) #pylint: disable=E1101
+    o_w3.eth.sendRawTransaction(signed.rawTransaction) #pylint: disable=E1101
+    return {'message': 'funding success'}

@@ -1,5 +1,5 @@
 from web3 import Web3
-from bot.config import str_to_checksum_address
+from bot.util import str_to_checksum_address
 
 CHARS_PER_BYTE = 2
 N_PLAYERS = 2

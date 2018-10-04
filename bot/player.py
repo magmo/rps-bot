@@ -1,7 +1,8 @@
 from flask import Blueprint, current_app, g, jsonify, request
 
 from bot import challenge, coder, fb_message, wallet
-from bot.config import BOT_ADDRESS, hex_to_str
+from bot.config import BOT_ADDRESS
+from bot.util import hex_to_str, set_response_message
 
 BP = Blueprint('channel_message', __name__)
 
@@ -98,9 +99,6 @@ def transition_from_state(hex_message):
 
     return response_message
 
-def set_response_message(message='', response=dict()):
-    response['message'] = message
-    return response
 
 def game_engine_message(message):
     d_response = {}
@@ -110,8 +108,7 @@ def game_engine_message(message):
     if last_message == message:
         warning = f'Duplicate message received {hex_last_message}'
         current_app.logger.warning(warning)
-        set_response_message(warning, d_response)
-        return d_response
+        return set_response_message(warning, d_response)
     wallet.record_received_message(message)
 
     coder.assert_channel_num_players(message)
@@ -139,6 +136,8 @@ def channel_message():
 
     if queue == 'GAME_ENGINE':
         d_response = game_engine_message(message)
+    elif queue == 'WALLET':
+        d_response = wallet.fund_adjudicator(message)
 
     fb_message.message_consumed(fb_message_key, g.db)
     return jsonify(d_response)

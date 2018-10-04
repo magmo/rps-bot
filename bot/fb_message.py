@@ -1,5 +1,6 @@
 from bot import coder
-from bot.config import BOT_ADDRESS, str_to_hex
+from bot.config import BOT_ADDRESS
+from bot.util import str_to_hex
 from bot.wallet import sign_message
 
 K_MESSAGES = 'messages'
