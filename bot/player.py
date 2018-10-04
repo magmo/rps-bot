@@ -138,6 +138,7 @@ def channel_message():
         d_response = game_engine_message(message)
     elif queue == 'WALLET':
         d_response = wallet.fund_adjudicator(message)
+        current_app.logger.info(d_response.get('message'))
 
     fb_message.message_consumed(fb_message_key, g.db)
     return jsonify(d_response)
