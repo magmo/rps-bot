@@ -1,4 +1,4 @@
-from flask import g
+from firebase_admin import db
 from eth_account import Account
 from eth_account.messages import defunct_hash_message
 from web3 import Web3
@@ -28,7 +28,7 @@ def _get_account():
     return Account.privateKeyToAccount(str_to_hex(BOT_PRIVATE_KEY)) #pylint: disable=E1120
 
 def get_wallets_ref():
-    return g.db.child(K_WALLETS)
+    return db.reference().child(K_WALLETS)
 
 def get_wallet_ref(wallet_key):
     return get_wallets_ref().child(wallet_key)

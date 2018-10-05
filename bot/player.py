@@ -121,7 +121,7 @@ def game_engine_message(message):
     new_state = transition_from_state(message)
 
     current_app.logger.info(f'Sending opponent: {new_state}')
-    fb_message.message_opponent(new_state, g.db)
+    fb_message.message_opponent(new_state)
     return set_response_message(new_state, d_response)
 
 @BP.route('/channel_message', methods=['POST'])
@@ -140,7 +140,7 @@ def channel_message():
         d_response = wallet.fund_adjudicator(message)
         current_app.logger.info(d_response.get('message'))
 
-    fb_message.message_consumed(fb_message_key, g.db)
+    fb_message.message_consumed(fb_message_key)
     return jsonify(d_response)
 
 @BP.route('/clear_wallet_channels')

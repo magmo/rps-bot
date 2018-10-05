@@ -41,10 +41,6 @@ def create_app(test_config=None):
             thread = Thread(target=run_challenge_update)
             thread.start()
 
-    def set_db():
-        g.db = db.reference()
-    app.before_request(set_db)
-
     from bot import player
     app.register_blueprint(player.BP)
     return app
