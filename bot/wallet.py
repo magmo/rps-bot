@@ -14,13 +14,15 @@ K_RECEIVED = 'received'
 K_SENT = 'sent'
 K_UID = 'uid'
 K_MESSAGE = 'message'
+K_NONCE = 'nonce'
 
-NEW_WALLET = dict(
-    address=str_to_hex(BOT_ADDRESS),
-    channels=None,
-    privateKey=BOT_PRIVATE_KEY,
-    uid=str_to_hex(WALLET_UID)
-)
+NEW_WALLET = {
+    'address': str_to_hex(BOT_ADDRESS),
+    K_CHANNELS: None,
+    'privateKey': BOT_PRIVATE_KEY,
+    'K_UID': str_to_hex(WALLET_UID),
+    K_NONCE: -1
+}
 
 def _get_account():
     return Account.privateKeyToAccount(str_to_hex(BOT_PRIVATE_KEY)) #pylint: disable=E1120
@@ -92,7 +94,17 @@ def fund_adjudicator(contract_addr):
 
     provider = Web3.HTTPProvider(infura_endpoint)
     o_w3 = Web3(provider)
-    nonce = o_w3.eth.getTransactionCount(from_addr) #pylint: disable=E1101
+    eth_nonce = o_w3.eth.getTransactionCount(from_addr) #pylint: disable=E1101
+
+    def increment_nonce(wallet_nonce):
+        if wallet_nonce is None:
+            return eth_nonce
+        new_nonce = wallet_nonce + 1 if wallet_nonce >= eth_nonce else eth_nonce
+        return new_nonce
+
+    _, wallet_key = get_wallet()
+    nonce = get_wallet_ref(wallet_key).child(K_NONCE).transaction(increment_nonce)
+
     transaction = {
         'nonce': nonce,
         'from': from_addr,
