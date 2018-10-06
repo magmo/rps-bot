@@ -1,3 +1,6 @@
+creds.json
+.env
+
 .gcloudignore
 
 .git
@@ -8,6 +11,7 @@ test/
 
 .pylintrc
 pylintplugins.py
+.pytest_cache/
 pytest.ini
 __pycache__/
 
