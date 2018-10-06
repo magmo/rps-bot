@@ -1,4 +1,7 @@
+from random import randrange
+
 from flask import Blueprint, current_app, jsonify, request
+
 
 from bot import challenge, coder, fb_message, wallet
 from bot.config import BOT_ADDRESS
@@ -41,8 +44,8 @@ def playera_pays_playerb(hex_message):
     return coder.increment_state_balance(hex_message, 1, stake)
 
 def play_move(hex_message):
-    # Always play rock for now
-    return coder.update_move(hex_message, 0)
+    # Choose a randome move
+    return coder.update_move(hex_message, randrange(3))
 
 def from_game_propose(_hex_message):
     return [playera_pays_playerb, play_move, coder.increment_game_position]
