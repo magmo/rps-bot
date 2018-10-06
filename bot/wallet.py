@@ -20,7 +20,7 @@ NEW_WALLET = {
     'address': str_to_hex(BOT_ADDRESS),
     K_CHANNELS: None,
     'privateKey': BOT_PRIVATE_KEY,
-    'K_UID': str_to_hex(WALLET_UID),
+    K_UID: str_to_hex(WALLET_UID),
     K_NONCE: -1
 }
 

@@ -1,14 +1,15 @@
+from os import environ
 from threading import Thread
 from time import sleep
 
+import firebase_admin
 from flask import Flask, g, request
 from flask.logging import logging
-import firebase_admin
-from firebase_admin import db
-
 
 from bot import challenge
 
+def get_project_name():
+    return environ.get('GOOGLE_CLOUD_PROJECT', 'rock-paper-scissors-dev')
 
 def create_app(test_config=None):
     app = Flask(__name__)
@@ -24,9 +25,10 @@ def create_app(test_config=None):
     try:
         firebase_admin.get_app()
     except ValueError:
+        project_name = get_project_name()
         firebase_admin.initialize_app(options={
-            'databaseURL': 'https://rock-paper-scissors-dev.firebaseio.com',
-            'projectId': 'rock-paper-scissors-dev'
+            'databaseURL': f'https://{project_name}.firebaseio.com',
+            'projectId': project_name
         })
 
 
