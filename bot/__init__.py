@@ -34,7 +34,7 @@ def create_app(test_config=None):
     def _start_challenge_update():
         def run_challenge_update():
             while True:
-                challenge.update_challenge_timestamp(db.reference())
+                challenge.update_challenge_timestamp()
                 sleep(4)
 
         if not app.config.get('TESTING'):

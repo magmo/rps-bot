@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, g, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 
 from bot import challenge, coder, fb_message, wallet
 from bot.config import BOT_ADDRESS
