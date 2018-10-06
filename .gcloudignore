@@ -1,0 +1,14 @@
+.gcloudignore
+
+.git
+.gitignore
+
+debug_flask_bot.sh
+test/
+
+.pylintrc
+pylintplugins.py
+pytest.ini
+__pycache__/
+
+.vscode/
