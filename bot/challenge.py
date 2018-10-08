@@ -1,5 +1,4 @@
 from time import time
-from flask import g
 from firebase_admin import db
 from bot.config import BOT_ADDRESS, BOT_NAME, BOT_STAKE
 from bot.util import str_to_hex

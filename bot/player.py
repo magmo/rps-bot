@@ -5,7 +5,7 @@ from flask import Blueprint, current_app, jsonify, request
 
 from bot import challenge, coder, fb_message, wallet
 from bot.config import BOT_ADDRESS
-from bot.util import hex_to_str, set_response_message
+from bot.util import hex_to_str, set_response_message, str_to_hex
 
 BP = Blueprint('channel_message', __name__)
 
@@ -125,7 +125,7 @@ def game_engine_message(message):
 
     current_app.logger.info(f'Sending opponent: {new_state}')
     fb_message.message_opponent(new_state)
-    return set_response_message(new_state, d_response)
+    return set_response_message(str_to_hex(new_state), d_response)
 
 @BP.route('/channel_message', methods=['POST'])
 def channel_message():
