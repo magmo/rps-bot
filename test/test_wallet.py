@@ -1,15 +1,26 @@
 import pytest
-from firebase_admin import db
+import web3
 
-from bot.wallet import fund_adjudicator, sign_message
+from hexbytes import HexBytes
+
+import bot.wallet
+from util import get_wallets_fn
+
 
 def test_sign_message():
     #pylint: disable=C0301
     message = '000000000000000000000000c1912fee45d61c87cc5ea59dae31190fffff232d00000000000000000000000000000000000000000000000000000000000001c800000000000000000000000000000000000000000000000000000000000000020000000000000000000000005291fA3F70C8e3D21B58c831018E5a0D82Dc4ab900000000000000000000000055de2e479F3D0183D95f5A969bEEB3a147F60049000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000006a94d74f430000000000000000000000000000000000000000000000000000006a94d74f4300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002386f26fc10000'
-    signature = sign_message(message)
+    signature = bot.wallet.sign_message(message)
     assert signature == '0x7f705e5b60f7d7c1360cdccafa6d2656d30fda922a63dc265fde6b387c34142d3e76759a9afdd1c65769a48b95d2126d89192b3b3f4f1515dafdf96d7b34aa6a1b'
 
 @pytest.mark.usefixtures("test_app")
 def test_fund_adjudicator(mocker):
-    mocker.patch('flask.g', new={'db': db.reference()})
-    fund_adjudicator('cdb594a32b1cc3479d8746279712c39d18a07fc0')
+    #pylint: disable=C0301
+    tx_hash = '0xd9e758d1edf849bc73048547ef8b482062b7e4f472cf11571942398d49e81217'
+    mocker.patch('firebase_admin.db.Query.get', new=get_wallets_fn('wallets'))
+    mocker.patch('firebase_admin.db.Reference.transaction', lambda _1, _2: 10)
+    mocker.patch('web3.eth.Eth.sendRawTransaction', autospec=True)
+    response = bot.wallet.fund_adjudicator('cdb594a32b1cc3479d8746279712c39d18a07fc0')
+
+    web3.eth.Eth.sendRawTransaction.assert_called_once() # pylint: disable=no-member
+    assert response['message'] == f'Funding success with transaction hash of {tx_hash}'

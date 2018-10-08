@@ -114,5 +114,5 @@ def fund_adjudicator(contract_addr):
         'gasPrice': o_w3.eth.gasPrice #pylint: disable=E1101
     }
     signed = o_w3.eth.account.signTransaction(transaction, BOT_PRIVATE_KEY) #pylint: disable=E1101
-    transaction = o_w3.eth.sendRawTransaction(signed.rawTransaction) #pylint: disable=E1101
-    return set_response_message('Funding success with transaction hash of ' + transaction.hex())
+    _sent_tx = o_w3.eth.sendRawTransaction(signed.rawTransaction) #pylint: disable=E1101
+    return set_response_message('Funding success with transaction hash of ' + signed.hash.hex())
