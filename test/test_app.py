@@ -1,6 +1,7 @@
 #pylint: disable=C0301
 import firebase_admin
 import bot.player
+from bot.challenge import NEW_CHALLENGE
 from bot.config import BOT_ADDRESS
 from bot.util import str_to_hex
 from util import get_wallets_fn
@@ -9,36 +10,49 @@ SAMPLE_MESSAGE = '0x000000000000000000000000c1912fee45d61c87cc5ea59dae31190fffff
 SAMPLE_RESPONSE = '0x000000000000000000000000c1912fee45d61c87cc5ea59dae31190fffff232d00000000000000000000000000000000000000000000000000000000000001c8000000000000000000000000000000000000000000000000000000000000000200000000000000000000000063422d2F15a64F965B11B26AF46aDFba5324295e00000000000000000000000055de2e479F3D0183D95f5A969bEEB3a147F60049000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000005a000000000000000000000000000000000000000000000000000000000000005a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e'
 
 ### HELPERS ###
-def mock_fb(mocker, wallet_json):
+def mock_fb(mocker, wallet_json='wallets'):
     mocker.patch('firebase_admin.db.Query.get', new=get_wallets_fn(wallet_json))
     mocker.patch('firebase_admin.db.Reference.delete', autospec=True)
     mocker.patch('firebase_admin.db.Reference.push', autospec=True)
     mocker.patch('firebase_admin.db.Reference.update', autospec=True)
+    mocker.patch('firebase_admin.db.Reference.transaction', lambda _1, _2: 10)
 
 
 ### TESTS ###
 def test_channel_message_clean_wallet(client, mocker):
-    mock_fb(mocker, 'wallets')
+    mock_fb(mocker)
 
     response = client.post('/channel_message', json={'data': SAMPLE_MESSAGE, 'queue': 'GAME_ENGINE', 'message_key': 'key123'})
+
     assert response.status_code == 200
     assert response.json['message'] == SAMPLE_RESPONSE
 
 def test_channel_message_duplicate_message(client, mocker):
     mock_fb(mocker, 'wallets_duplicate_message')
+
     response = client.post('/channel_message', json={'data': SAMPLE_MESSAGE, 'queue': 'GAME_ENGINE', 'message_key': 'key123'})
+
     assert response.status_code == 200
     assert response.json['message'] == f'Duplicate message received {SAMPLE_MESSAGE}'
 
-def test_channel_wallet_message(client):
+def test_channel_wallet_message(client, mocker):
+    mock_fb(mocker)
+    mocker.patch('web3.eth.Eth.sendRawTransaction', autospec=True)
+
     response = client.post('/channel_message', json={'data': '0xcdb594a32b1cc3479d8746279712c39d18a07fc0', 'queue': 'WALLET', 'message_key': 'key123'})
+
     assert response.status_code == 200
 
-def test_create_challenge(client):
+def test_create_challenge(client, mocker):
+    mocker.patch('firebase_admin.db.Reference', autospec=True)
+
     assert client.get('/create_challenge').status_code == 200
+    firebase_admin.db.Reference().child('challenges').child(
+        str_to_hex(BOT_ADDRESS)).set.assert_called_once_with(NEW_CHALLENGE)
 
 def test_update_challenge_timestamp(client, mocker):
     mocker.patch('firebase_admin.db.Reference', autospec=True)
+
     assert client.get('/update_challenge_timestamp').status_code == 200
     firebase_admin.db.Reference().child('challenges').child(
         str_to_hex(BOT_ADDRESS)).child('updated_at').set.assert_called_once() # pylint: disable=no-member
