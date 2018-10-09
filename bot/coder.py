@@ -1,5 +1,5 @@
 from web3 import Web3
-from bot.util import str_to_checksum_address
+from bot.util import int_to_field, str_to_checksum_address
 
 CHARS_PER_BYTE = 2
 N_PLAYERS = 2
@@ -38,10 +38,6 @@ class NumPlayersError(CoderError):
     def __str__(self):
         return f'Rock-paper-scissors requires exactly ' + \
             '{N_PLAYERS} players. {self.num_players} provided.'
-
-def int_to_field(num):
-    h_num = format(num, 'x')
-    return '{:0>64}'.format(h_num)
 
 def _extract_bytes(h_string, byte_offset=0, num_bytes=F_WIDTH):
     char_offset = byte_offset * CHARS_PER_BYTE

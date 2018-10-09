@@ -10,8 +10,14 @@ def hex_to_str(hex_str):
 def str_to_hex(string):
     return HEX_PREFIX + string
 
-def int_to_hex_str(integer):
-    return hex_to_str(hex(integer))
+def int_to_field(num, min_length=64):
+    h_num = format(num, 'x')
+    format_str = '{:0>%d}' % min_length
+    return format_str.format(h_num)
+
+def int_to_hex_str(integer, min_length=64):
+    return int_to_field(integer, min_length)
+
 
 def str_to_checksum_address(string):
     w3_instance = Web3()

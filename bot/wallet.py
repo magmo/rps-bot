@@ -87,7 +87,7 @@ def sign_message(message):
     acct = _get_account()
     signed_hash = acct.signHash(defunct_hash)
     return int_to_hex_str(signed_hash['r']) + int_to_hex_str(signed_hash['s']) \
-        + int_to_hex_str(signed_hash['v'])
+        + int_to_hex_str(signed_hash['v'], 2)
 
 def fund_adjudicator(contract_addr):
     infura_endpoint = 'https://ropsten.infura.io/v3/2972b45cf9444a6d8f8695f6bdbc672f'
