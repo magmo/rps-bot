@@ -7,6 +7,7 @@ creds.json
 .gitignore
 
 debug_flask_bot.sh
+switch_gcloud_conf.sh
 test/
 
 .pylintrc
