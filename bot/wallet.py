@@ -4,7 +4,7 @@ from eth_account.messages import defunct_hash_message
 from web3 import Web3
 
 from bot.config import BOT_ADDRESS, BOT_PRIVATE_KEY, BOT_STAKE, STAKES_IN_FUNDING, WALLET_UID
-from bot.util import str_to_hex, str_to_checksum_address, set_response_message
+from bot.util import int_to_hex_str, str_to_hex, str_to_checksum_address, set_response_message
 
 from bot import coder
 
@@ -82,10 +82,12 @@ def record_received_message(hex_message):
     get_wallet_ref(wallet_key).update(wallet)
 
 def sign_message(message):
-    message_hash = defunct_hash_message(hexstr=message)
+    message_hash = Web3.sha3(hexstr=message)
+    defunct_hash = defunct_hash_message(message_hash)
     acct = _get_account()
-    signed_message = acct.signHash(message_hash)
-    return signed_message['signature'].hex()
+    signed_hash = acct.signHash(defunct_hash)
+    return int_to_hex_str(signed_hash['r']) + int_to_hex_str(signed_hash['s']) \
+        + int_to_hex_str(signed_hash['v'])
 
 def fund_adjudicator(contract_addr):
     infura_endpoint = 'https://ropsten.infura.io/v3/2972b45cf9444a6d8f8695f6bdbc672f'

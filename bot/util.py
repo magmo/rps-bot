@@ -10,6 +10,9 @@ def hex_to_str(hex_str):
 def str_to_hex(string):
     return HEX_PREFIX + string
 
+def int_to_hex_str(integer):
+    return hex_to_str(hex(integer))
+
 def str_to_checksum_address(string):
     w3_instance = Web3()
     hex_string = str_to_hex(string)

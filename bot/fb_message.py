@@ -14,7 +14,7 @@ def message_consumed(key):
 
 def message_opponent(message):
     hex_message = str_to_hex(message)
-    signature = sign_message(hex_message)
+    signature = str_to_hex(sign_message(hex_message))
     queue = 'GAME_ENGINE'
 
     d_message = {
