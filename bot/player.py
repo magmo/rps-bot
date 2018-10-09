@@ -80,7 +80,7 @@ def game(hex_message):
     return GAME_STATES[game_position](hex_message)
 
 def conclude(_hex_message):
-    raise PlayerChannelStateNotImplementedError('conclude')
+    return []
 
 CHANNEL_STATES = [
     prefund_setup,
