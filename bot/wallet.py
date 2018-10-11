@@ -3,7 +3,8 @@ from eth_account import Account
 from eth_account.messages import defunct_hash_message
 from web3 import Web3
 
-from bot.config import BOT_ADDRESS, BOT_PRIVATE_KEY, BOT_STAKE, STAKES_IN_FUNDING, WALLET_UID
+from bot.config import get_bot, get_bot_addr
+from bot.config import K_ADDRESS, K_PK, K_STAKE, K_WALLET_UID, STAKES_IN_FUNDING
 from bot.util import int_to_hex_str, str_to_hex, str_to_checksum_address, set_response_message
 
 from bot import coder
@@ -16,16 +17,19 @@ K_UID = 'uid'
 K_MESSAGE = 'message'
 K_NONCE = 'nonce'
 
-NEW_WALLET = {
-    'address': str_to_hex(BOT_ADDRESS),
-    K_CHANNELS: None,
-    'privateKey': BOT_PRIVATE_KEY,
-    K_UID: str_to_hex(WALLET_UID),
-    K_NONCE: -1
-}
+def _get_new_wallet(bot_index=0):
+    bot = get_bot(bot_index)
+    return {
+        'address': bot[K_ADDRESS],
+        K_CHANNELS: None,
+        'privateKey': bot[K_PK],
+        K_UID: str_to_hex(bot[K_WALLET_UID]),
+        K_NONCE: -1
+    }
 
-def _get_account():
-    return Account.privateKeyToAccount(str_to_hex(BOT_PRIVATE_KEY)) #pylint: disable=E1120
+def _get_account(bot_index=0):
+    key = get_bot(bot_index)[K_PK]
+    return Account.privateKeyToAccount(str_to_hex(key)) #pylint: disable=E1120
 
 def get_wallets_ref():
     return db.reference().child(K_WALLETS)
@@ -33,11 +37,12 @@ def get_wallets_ref():
 def get_wallet_ref(wallet_key):
     return get_wallets_ref().child(wallet_key)
 
-def create_wallet():
-    get_wallets_ref().push(NEW_WALLET)
+def create_wallet(bot_index=0):
+    get_wallets_ref().push(_get_new_wallet(bot_index))
 
-def get_wallet():
-    hex_uid = str_to_hex(WALLET_UID)
+def get_wallet(bot_index=0):
+    uid = get_bot(bot_index)[K_WALLET_UID]
+    hex_uid = str_to_hex(uid)
     wallets_ref = get_wallets_ref()
     bot_wallet_query = wallets_ref.order_by_child(K_UID).equal_to(hex_uid).limit_to_first(1)
     wrapped_wallet = bot_wallet_query.get()
@@ -89,9 +94,9 @@ def sign_message(message):
     return int_to_hex_str(signed_hash['r']) + int_to_hex_str(signed_hash['s']) \
         + int_to_hex_str(signed_hash['v'], 2)
 
-def fund_adjudicator(contract_addr):
+def fund_adjudicator(contract_addr, bot_index=0):
     infura_endpoint = 'https://ropsten.infura.io/v3/2972b45cf9444a6d8f8695f6bdbc672f'
-    from_addr = str_to_checksum_address(BOT_ADDRESS)
+    from_addr = str_to_checksum_address(get_bot_addr(bot_index))
     to_addr = str_to_checksum_address(contract_addr)
 
     provider = Web3.HTTPProvider(infura_endpoint)
@@ -107,14 +112,16 @@ def fund_adjudicator(contract_addr):
     _, wallet_key = get_wallet()
     nonce = get_wallet_ref(wallet_key).child(K_NONCE).transaction(increment_nonce)
 
+    stake = get_bot(bot_index)[K_STAKE]
     transaction = {
         'nonce': nonce,
         'from': from_addr,
         'to': to_addr,
-        'value': BOT_STAKE * STAKES_IN_FUNDING,
+        'value': stake * STAKES_IN_FUNDING,
         'gas': 100000,
         'gasPrice': o_w3.eth.gasPrice #pylint: disable=E1101
     }
-    signed = o_w3.eth.account.signTransaction(transaction, BOT_PRIVATE_KEY) #pylint: disable=E1101
+    private_k = get_bot(bot_index)[K_PK]
+    signed = o_w3.eth.account.signTransaction(transaction, private_k) #pylint: disable=E1101
     _sent_tx = o_w3.eth.sendRawTransaction(signed.rawTransaction) #pylint: disable=E1101
     return set_response_message('Funding success with transaction hash of ' + signed.hash.hex())

@@ -1,8 +1,8 @@
 #pylint: disable=C0301
 import firebase_admin
 import bot.player
-from bot.challenge import NEW_CHALLENGE
-from bot.config import BOT_ADDRESS
+from bot.challenge import _get_new_challenge
+from bot.config import get_bot_addr
 from bot.util import str_to_hex
 from util import get_wallets_fn
 
@@ -48,7 +48,7 @@ def test_create_challenge(client, mocker):
 
     assert client.get('/create_challenge').status_code == 200
     firebase_admin.db.Reference().child('challenges').child(
-        str_to_hex(BOT_ADDRESS)).set.assert_called_once_with(NEW_CHALLENGE)
+        str_to_hex(get_bot_addr(0))).set.assert_called_once_with(_get_new_challenge(0))
 
 # Black-box testing
 def state_machine_transition(state, new_state):

@@ -4,7 +4,7 @@ from flask import Blueprint, current_app, jsonify, request
 
 
 from bot import challenge, coder, fb_message, wallet
-from bot.config import BOT_ADDRESS
+from bot.config import get_bot_addr
 from bot.util import hex_to_str, set_response_message, str_to_hex
 
 BP = Blueprint('channel_message', __name__)
@@ -103,7 +103,7 @@ def transition_from_state(hex_message):
     return response_message
 
 
-def game_engine_message(message):
+def game_engine_message(message, bot_index=0):
     d_response = {}
 
     hex_last_message = wallet.get_last_message_for_channel(message)
@@ -116,7 +116,7 @@ def game_engine_message(message):
 
     coder.assert_channel_num_players(message)
     players = coder.get_channel_players(message)
-    if BOT_ADDRESS not in players:
+    if get_bot_addr(bot_index) not in players:
         warning = 'The message players do not include a bot'
         current_app.logger.warning(warning)
         return set_response_message(warning, d_response)
