@@ -155,8 +155,3 @@ def clear_wallet():
 def create_challenge():
     challenge.create_new_challenge()
     return jsonify({})
-
-@BP.route('/update_challenge_timestamp')
-def update_challenge_timestamp():
-    challenge.update_challenge_timestamp()
-    return jsonify({})

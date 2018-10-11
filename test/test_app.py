@@ -50,14 +50,6 @@ def test_create_challenge(client, mocker):
     firebase_admin.db.Reference().child('challenges').child(
         str_to_hex(BOT_ADDRESS)).set.assert_called_once_with(NEW_CHALLENGE)
 
-def test_update_challenge_timestamp(client, mocker):
-    mocker.patch('firebase_admin.db.Reference', autospec=True)
-
-    assert client.get('/update_challenge_timestamp').status_code == 200
-    firebase_admin.db.Reference().child('challenges').child(
-        str_to_hex(BOT_ADDRESS)).child('updated_at').set.assert_called_once() # pylint: disable=no-member
-
-
 # Black-box testing
 def state_machine_transition(state, new_state):
     assert bot.player.transition_from_state(state) == new_state

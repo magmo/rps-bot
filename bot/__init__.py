@@ -32,17 +32,6 @@ def create_app(test_config=None):
         })
 
 
-    @app.before_first_request
-    def _start_challenge_update():
-        def run_challenge_update():
-            while True:
-                challenge.update_challenge_timestamp()
-                sleep(4)
-
-        if not app.config.get('TESTING'):
-            thread = Thread(target=run_challenge_update)
-            thread.start()
-
     from bot import player
     app.register_blueprint(player.BP)
     return app
