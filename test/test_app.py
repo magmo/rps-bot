@@ -2,9 +2,8 @@
 import firebase_admin
 import bot.player
 from bot.challenge import _get_new_challenge
-from bot.config import get_bot_addr
 from bot.util import str_to_hex
-from util import get_wallets_fn
+from util import get_bot0_addr, get_wallets_fn
 
 SAMPLE_MESSAGE = '0x000000000000000000000000c1912fee45d61c87cc5ea59dae31190fffff232d00000000000000000000000000000000000000000000000000000000000001c8000000000000000000000000000000000000000000000000000000000000000200000000000000000000000063422d2F15a64F965B11B26AF46aDFba5324295e00000000000000000000000055de2e479F3D0183D95f5A969bEEB3a147F60049000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005a000000000000000000000000000000000000000000000000000000000000005a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e'
 SAMPLE_RESPONSE = '0x000000000000000000000000c1912fee45d61c87cc5ea59dae31190fffff232d00000000000000000000000000000000000000000000000000000000000001c8000000000000000000000000000000000000000000000000000000000000000200000000000000000000000063422d2F15a64F965B11B26AF46aDFba5324295e00000000000000000000000055de2e479F3D0183D95f5A969bEEB3a147F60049000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000005a000000000000000000000000000000000000000000000000000000000000005a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e'
@@ -17,12 +16,16 @@ def mock_fb(mocker, wallet_json='wallets'):
     mocker.patch('firebase_admin.db.Reference.update', autospec=True)
     mocker.patch('firebase_admin.db.Reference.transaction', lambda _1, _2: 10)
 
-
 ### TESTS ###
 def test_channel_message_clean_wallet(client, mocker):
     mock_fb(mocker)
 
-    response = client.post('/channel_message', json={'data': SAMPLE_MESSAGE, 'queue': 'GAME_ENGINE', 'message_key': 'key123'})
+    response = client.post('/channel_message', json={
+        'data': SAMPLE_MESSAGE,
+        'queue': 'GAME_ENGINE',
+        'message_key': 'key123',
+        'address_key': get_bot0_addr()
+    })
 
     assert response.status_code == 200
     assert response.json['message'] == SAMPLE_RESPONSE
@@ -30,7 +33,12 @@ def test_channel_message_clean_wallet(client, mocker):
 def test_channel_message_duplicate_message(client, mocker):
     mock_fb(mocker, 'wallets_duplicate_message')
 
-    response = client.post('/channel_message', json={'data': SAMPLE_MESSAGE, 'queue': 'GAME_ENGINE', 'message_key': 'key123'})
+    response = client.post('/channel_message', json={
+        'data': SAMPLE_MESSAGE,
+        'queue': 'GAME_ENGINE',
+        'message_key': 'key123',
+        'address_key': get_bot0_addr()
+    })
 
     assert response.status_code == 200
     assert response.json['message'] == f'Duplicate message received {SAMPLE_MESSAGE}'
@@ -39,16 +47,24 @@ def test_channel_wallet_message(client, mocker):
     mock_fb(mocker)
     mocker.patch('web3.eth.Eth.sendRawTransaction', autospec=True)
 
-    response = client.post('/channel_message', json={'data': '0xcdb594a32b1cc3479d8746279712c39d18a07fc0', 'queue': 'WALLET', 'message_key': 'key123'})
+    response = client.post('/channel_message', json={
+        'data': '0xcdb594a32b1cc3479d8746279712c39d18a07fc0',
+        'queue': 'WALLET',
+        'message_key': 'key123',
+        'address_key': get_bot0_addr()
+    })
 
     assert response.status_code == 200
 
 def test_create_challenge(client, mocker):
     mocker.patch('firebase_admin.db.Reference', autospec=True)
 
-    assert client.get('/create_challenge').status_code == 200
+    response = client.get('/create_challenge', json={
+        'address_key': get_bot0_addr()
+    })
+    assert response.status_code == 200
     firebase_admin.db.Reference().child('challenges').child(
-        str_to_hex(get_bot_addr(0))).set.assert_called_once_with(_get_new_challenge(0))
+        str_to_hex(get_bot0_addr())).set.assert_called_once_with(_get_new_challenge(0))
 
 # Black-box testing
 def state_machine_transition(state, new_state):

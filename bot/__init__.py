@@ -7,6 +7,7 @@ from flask import Flask, g, request
 from flask.logging import logging
 
 from bot import challenge
+from bot.util import hex_to_str
 
 def get_project_name():
     return environ.get('GOOGLE_CLOUD_PROJECT', 'rock-paper-scissors-dev')
@@ -21,6 +22,11 @@ def create_app(test_config=None):
     def _log_request_info():
         app.logger.debug(f'Headers: {request.headers}')
         app.logger.debug(f'Body: {request.get_data()}')
+
+    @app.before_request
+    def _set_bot_addr():
+        request_json = request.get_json()
+        g.bot_addr = hex_to_str(request_json.get('address_key'))
 
     try:
         firebase_admin.get_app()
