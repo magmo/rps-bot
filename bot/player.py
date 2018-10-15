@@ -1,9 +1,7 @@
-from random import randrange
-
 from flask import Blueprint, current_app, jsonify, request, g
 
 
-from bot import challenge, coder, fb_message, wallet
+from bot import challenge, coder, fb_message, strategy, wallet
 from bot.util import hex_to_str, set_response_message, str_to_hex
 
 BP = Blueprint('channel_message', __name__)
@@ -43,8 +41,9 @@ def playera_pays_playerb(hex_message):
     return coder.increment_state_balance(hex_message, 1, stake)
 
 def play_move(hex_message):
-    # Choose a randome move
-    return coder.update_move(hex_message, randrange(3))
+    # Choose a random move
+    move = strategy.next_move(g.bot_addr)
+    return coder.update_move(hex_message, move)
 
 def from_game_propose(_hex_message):
     return [playera_pays_playerb, play_move, coder.increment_game_position]
