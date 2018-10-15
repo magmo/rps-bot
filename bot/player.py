@@ -1,10 +1,7 @@
-from random import randrange
-
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, current_app, jsonify, request, g
 
 
-from bot import challenge, coder, fb_message, wallet
-from bot.config import BOT_ADDRESS
+from bot import challenge, coder, fb_message, strategy, wallet
 from bot.util import hex_to_str, set_response_message, str_to_hex
 
 BP = Blueprint('channel_message', __name__)
@@ -44,8 +41,9 @@ def playera_pays_playerb(hex_message):
     return coder.increment_state_balance(hex_message, 1, stake)
 
 def play_move(hex_message):
-    # Choose a randome move
-    return coder.update_move(hex_message, randrange(3))
+    # Choose a random move
+    move = strategy.next_move(g.bot_addr)
+    return coder.update_move(hex_message, move)
 
 def from_game_propose(_hex_message):
     return [playera_pays_playerb, play_move, coder.increment_game_position]
@@ -103,20 +101,20 @@ def transition_from_state(hex_message):
     return response_message
 
 
-def game_engine_message(message):
+def game_engine_message(message, bot_addr):
     d_response = {}
 
-    hex_last_message = wallet.get_last_message_for_channel(message)
+    hex_last_message = wallet.get_last_message_for_channel(message, bot_addr)
     last_message = hex_to_str(hex_last_message)
     if last_message == message:
         warning = f'Duplicate message received {hex_last_message}'
         current_app.logger.warning(warning)
         return set_response_message(warning, d_response)
-    wallet.record_received_message(message)
+    wallet.record_received_message(message, bot_addr)
 
     coder.assert_channel_num_players(message)
     players = coder.get_channel_players(message)
-    if BOT_ADDRESS not in players:
+    if bot_addr not in players:
         warning = 'The message players do not include a bot'
         current_app.logger.warning(warning)
         return set_response_message(warning, d_response)
@@ -124,7 +122,7 @@ def game_engine_message(message):
     new_state = transition_from_state(message)
 
     current_app.logger.info(f'Sending opponent: {new_state}')
-    fb_message.message_opponent(new_state)
+    fb_message.message_opponent(new_state, bot_addr)
     return set_response_message(str_to_hex(new_state), d_response)
 
 @BP.route('/channel_message', methods=['POST'])
@@ -135,23 +133,24 @@ def channel_message():
     message = hex_to_str(request_json['data'])
     queue = request_json['queue']
     fb_message_key = request_json.get('message_key')
+
     d_response = set_response_message()
 
     if queue == 'GAME_ENGINE':
-        d_response = game_engine_message(message)
+        d_response = game_engine_message(message, g.bot_addr)
     elif queue == 'WALLET':
-        d_response = wallet.fund_adjudicator(message)
+        d_response = wallet.fund_adjudicator(message, g.bot_addr)
         current_app.logger.info(d_response.get('message'))
 
-    fb_message.message_consumed(fb_message_key)
+    fb_message.message_consumed(fb_message_key, g.bot_addr)
     return jsonify(d_response)
 
 @BP.route('/clear_wallet_channels')
 def clear_wallet():
-    wallet.clear_wallet_channels()
+    wallet.clear_wallet_channels(g.bot_addr)
     return jsonify({})
 
 @BP.route('/create_challenge')
 def create_challenge():
-    challenge.create_new_challenge()
+    challenge.create_new_challenge(g.bot_addr)
     return jsonify({})
