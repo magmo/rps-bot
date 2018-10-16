@@ -14,7 +14,9 @@ SAMPLE_RESPONSE = '0x000000000000000000000000c1912fee45d61c87cc5ea59dae31190ffff
 def mock_fb(mocker, wallet_json='wallets'):
     mocker.patch('firebase_admin.db.Query.get', new=get_wallets_fn(wallet_json))
     mocker.patch('firebase_admin.db.Reference.delete', autospec=True)
+    mocker.patch('firebase_admin.db.Reference.get', autospec=True)
     mocker.patch('firebase_admin.db.Reference.push', autospec=True)
+    mocker.patch('firebase_admin.db.Reference.set', autospec=True)
     mocker.patch('firebase_admin.db.Reference.update', autospec=True)
     mocker.patch('firebase_admin.db.Reference.transaction', lambda _1, _2: 10)
 
@@ -34,6 +36,7 @@ def test_channel_message_clean_wallet(client, mocker):
 
 def test_channel_message_duplicate_message(client, mocker):
     mock_fb(mocker, 'wallets_duplicate_message')
+    mocker.patch('firebase_admin.db.Reference.get', lambda _1: SAMPLE_MESSAGE)
 
     response = client.post('/channel_message', json={
         'data': SAMPLE_MESSAGE,
