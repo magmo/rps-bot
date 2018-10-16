@@ -15,6 +15,7 @@ K_RECEIVED = 'received'
 K_SENT = 'sent'
 K_UID = 'uid'
 K_MESSAGE = 'message'
+K_LAST_MOVE = 'last_move'
 K_NONCE = 'nonce'
 
 def _get_new_wallet(bot_addr):
@@ -36,6 +37,12 @@ def get_wallets_ref():
 
 def get_wallet_ref(wallet_key):
     return get_wallets_ref().child(wallet_key)
+
+def get_wallet_channel_ref(bot_addr, hex_message):
+    _wallet, wallet_key = get_wallet(bot_addr)
+    channel_id = coder.get_channel_id(hex_message)
+
+    return get_wallet_ref(wallet_key).child(K_CHANNELS).child(channel_id)
 
 def create_wallet(bot_addr):
     get_wallets_ref().push(_get_new_wallet(bot_addr))
@@ -72,19 +79,13 @@ def get_last_message_for_channel(hex_message, bot_addr):
     return last_message
 
 def record_received_message(hex_message, bot_addr):
-    wallet, wallet_key = get_wallet(bot_addr)
-    channel_id = coder.get_channel_id(hex_message)
+    message_ref = get_wallet_channel_ref(bot_addr, hex_message).child(K_RECEIVED).child(K_MESSAGE)
+    message_ref.set(str_to_hex(hex_message))
 
-    channels = wallet.get(K_CHANNELS, {})
-    channel = channels.get(channel_id, {})
-    received = channel.get(K_RECEIVED, {})
-
-    received[K_MESSAGE] = str_to_hex(hex_message)
-    channel[K_RECEIVED] = received
-    channels[channel_id] = channel
-    wallet[K_CHANNELS] = channels
-
-    get_wallet_ref(wallet_key).update(wallet)
+def record_opponent_move(hex_message, bot_addr):
+    a_move = coder.get_game_aplay(hex_message)
+    move_ref = get_wallet_channel_ref(bot_addr, hex_message).child(K_LAST_MOVE)
+    move_ref.set(a_move)
 
 def sign_message(message, bot_addr):
     message_hash = Web3.sha3(hexstr=message)

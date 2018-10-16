@@ -48,7 +48,8 @@ def play_move(hex_message):
 def from_game_propose(_hex_message):
     return [playera_pays_playerb, play_move, coder.increment_game_position]
 
-def from_game_reveal(_hex_message):
+def from_game_reveal(hex_message):
+    wallet.record_opponent_move(hex_message, g.bot_addr)
     return [coder.new_game]
 
 GAME_STATES = (
