@@ -105,10 +105,9 @@ def transition_from_state(hex_message):
 def game_engine_message(message, bot_addr):
     d_response = {}
 
-    hex_last_message = wallet.get_last_message_for_channel(message, bot_addr)
-    last_message = hex_to_str(hex_last_message)
+    last_message = wallet.get_last_message_for_channel(message, bot_addr)
     if last_message == message:
-        warning = f'Duplicate message received {hex_last_message}'
+        warning = f'Duplicate message received {last_message}'
         current_app.logger.warning(warning)
         return set_response_message(warning, d_response)
     wallet.record_received_message(message, bot_addr)

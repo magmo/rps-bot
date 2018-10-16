@@ -25,6 +25,8 @@ def test_fund_adjudicator(mocker):
     web3.eth.Eth.sendRawTransaction.assert_called_once() # pylint: disable=no-member
     assert response['message'] == f'Funding success with transaction hash of {tx_hash}'
 
-def test_record_received_message():
+def test_record_received_message(test_app):
     # This test uses the test Firebase realtime database
     bot.wallet.record_received_message(MESSSAGE, ADDRESSES[0])
+    last_message = bot.wallet.get_last_message_for_channel(MESSSAGE, ADDRESSES[0])
+    assert last_message == MESSSAGE

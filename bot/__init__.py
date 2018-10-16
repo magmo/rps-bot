@@ -1,4 +1,4 @@
-from os import environ
+from os import environ, getcwd, path
 from threading import Thread
 from time import sleep
 
@@ -9,7 +9,10 @@ from flask.logging import logging
 from bot import challenge
 from bot.util import hex_to_str
 
-def get_project_name():
+def get_fb_project_name(app):
+    if app.config['TESTING']:
+        environ["GOOGLE_APPLICATION_CREDENTIALS"] = path.join(getcwd(), 'creds_test.json')
+        return 'rock-paper-scissors-test'
     return environ.get('GOOGLE_CLOUD_PROJECT', 'rock-paper-scissors-dev')
 
 def create_app(test_config=None):
@@ -31,7 +34,7 @@ def create_app(test_config=None):
     try:
         firebase_admin.get_app()
     except ValueError:
-        project_name = get_project_name()
+        project_name = get_fb_project_name(app)
         firebase_admin.initialize_app(options={
             'databaseURL': f'https://{project_name}.firebaseio.com',
             'projectId': project_name

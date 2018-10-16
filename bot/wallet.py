@@ -5,7 +5,8 @@ from web3 import Web3
 
 from bot.config import get_bot
 from bot.config import K_ADDRESS, K_PK, K_STAKE, K_WALLET_UID, STAKES_IN_FUNDING
-from bot.util import int_to_hex_str, str_to_hex, str_to_checksum_address, set_response_message
+from bot.util import hex_to_str, int_to_hex_str, str_to_hex, str_to_checksum_address
+from bot.util import set_response_message
 
 from bot import coder
 
@@ -76,7 +77,7 @@ def get_last_message_for_channel(hex_message, bot_addr):
     except KeyError:
         pass
 
-    return last_message
+    return hex_to_str(last_message)
 
 def record_received_message(hex_message, bot_addr):
     message_ref = get_wallet_channel_ref(bot_addr, hex_message).child(K_RECEIVED).child(K_MESSAGE)
