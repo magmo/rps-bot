@@ -65,18 +65,8 @@ def clear_wallet_channels(bot_addr):
     get_wallet_ref(wallet_key).child(K_CHANNELS).delete()
 
 def get_last_message_for_channel(hex_message, bot_addr):
-    wallet = get_wallet(bot_addr)[0]
-    channels = wallet.get(K_CHANNELS)
-    if not channels:
-        return None
-
-    channel_id = coder.get_channel_id(hex_message)
-    last_message = None
-    try:
-        last_message = channels[channel_id][K_RECEIVED][K_MESSAGE]
-    except KeyError:
-        pass
-
+    message_ref = get_wallet_channel_ref(bot_addr, hex_message).child(K_RECEIVED).child(K_MESSAGE)
+    last_message = message_ref.get()
     return hex_to_str(last_message)
 
 def record_received_message(hex_message, bot_addr):
