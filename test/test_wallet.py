@@ -27,15 +27,20 @@ def test_fund_adjudicator(mocker):
     web3.eth.Eth.sendRawTransaction.assert_called_once() # pylint: disable=no-member
     assert response['message'] == f'Funding success with transaction hash of {tx_hash}'
 
-def test_record_received_message(test_app):
+def test_set_last_message_for_channel(test_app): #pylint: disable=W0613
     # This test uses the test Firebase realtime database
-    bot.wallet.record_received_message(MESSSAGE, ADDRESSES[0])
+    bot.wallet.clear_wallet_channels(ADDRESSES[0])
+    bot.wallet.set_last_message_for_channel(MESSSAGE, ADDRESSES[0])
     last_message = bot.wallet.get_last_message_for_channel(MESSSAGE, ADDRESSES[0])
     assert last_message == MESSSAGE
 
-    bot.wallet.record_received_message(MESSSAGE2, ADDRESSES[0])
+    bot.wallet.set_last_message_for_channel(MESSSAGE2, ADDRESSES[0])
     last_message = bot.wallet.get_last_message_for_channel(MESSSAGE, ADDRESSES[0])
     assert last_message != MESSSAGE
 
-def test_record_opponent_move(test_app):
-    bot.wallet.record_opponent_move(REVEAL_MESSAGE, ADDRESSES[0])
+def test_set_last_opponent_move(test_app): #pylint: disable=W0613
+    # This test uses the test Firebase realtime database
+    bot.wallet.clear_wallet_channels(ADDRESSES[0])
+    bot.wallet.set_last_opponent_move(REVEAL_MESSAGE, ADDRESSES[0])
+    last_move = bot.wallet.get_last_opponent_move(REVEAL_MESSAGE, ADDRESSES[0])
+    assert last_move == 1

@@ -49,7 +49,7 @@ def from_game_propose(_hex_message):
     return [playera_pays_playerb, play_move, coder.increment_game_position]
 
 def from_game_reveal(hex_message):
-    wallet.record_opponent_move(hex_message, g.bot_addr)
+    wallet.set_last_opponent_move(hex_message, g.bot_addr)
     return [coder.new_game]
 
 GAME_STATES = (
@@ -110,7 +110,7 @@ def game_engine_message(message, bot_addr):
         warning = f'Duplicate message received {last_message}'
         current_app.logger.warning(warning)
         return set_response_message(warning, d_response)
-    wallet.record_received_message(message, bot_addr)
+    wallet.set_last_message_for_channel(message, bot_addr)
 
     coder.assert_channel_num_players(message)
     players = coder.get_channel_players(message)

@@ -69,11 +69,15 @@ def get_last_message_for_channel(hex_message, bot_addr):
     last_message = message_ref.get()
     return hex_to_str(last_message)
 
-def record_received_message(hex_message, bot_addr):
+def set_last_message_for_channel(hex_message, bot_addr):
     message_ref = get_wallet_channel_ref(bot_addr, hex_message).child(K_RECEIVED).child(K_MESSAGE)
     message_ref.set(str_to_hex(hex_message))
 
-def record_opponent_move(hex_message, bot_addr):
+def get_last_opponent_move(hex_message, bot_addr):
+    move_ref = get_wallet_channel_ref(bot_addr, hex_message).child(K_LAST_MOVE)
+    return move_ref.get()
+
+def set_last_opponent_move(hex_message, bot_addr):
     a_move = coder.get_game_aplay(hex_message)
     move_ref = get_wallet_channel_ref(bot_addr, hex_message).child(K_LAST_MOVE)
     move_ref.set(a_move)
