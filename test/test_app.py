@@ -64,7 +64,7 @@ def test_channel_wallet_message(client, mocker):
 def test_create_challenge(client, mocker):
     mocker.patch('firebase_admin.db.Reference', autospec=True)
 
-    response = client.get('/create_challenge', json={
+    response = client.post('/create_challenge', json={
         'address_key': get_bot0_addr()
     })
     assert response.status_code == 200

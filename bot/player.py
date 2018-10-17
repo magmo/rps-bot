@@ -136,6 +136,7 @@ def channel_message():
     message = hex_to_str(request_json['data'])
     queue = request_json['queue']
     fb_message_key = request_json.get('message_key')
+    fb_message.message_consumed(fb_message_key, g.bot_addr)
 
     d_response = set_response_message()
 
@@ -145,15 +146,15 @@ def channel_message():
         d_response = wallet.fund_adjudicator(message, g.bot_addr)
         current_app.logger.info(d_response.get('message'))
 
-    fb_message.message_consumed(fb_message_key, g.bot_addr)
+ 
     return jsonify(d_response)
 
-@BP.route('/clear_wallet_channels')
+@BP.route('/clear_wallet_channels', methods=['POST'])
 def clear_wallet():
     wallet.clear_wallet_channels(g.bot_addr)
     return jsonify({})
 
-@BP.route('/create_challenge')
+@BP.route('/create_challenge', methods=['POST'])
 def create_challenge():
     challenge.create_new_challenge(g.bot_addr)
     return jsonify({})
