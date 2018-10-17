@@ -18,12 +18,12 @@ def _pick_rock(_last_bot_move, _last_opponent_move):
     return ROCK
 
 def _pick_increment(last_bot_move, _last_opponent_move):
-    if not last_bot_move:
+    if last_bot_move is None:
         return ROCK
     return (last_bot_move + 1) % NUM_MOVES
 
 def _pick_opponent_increment(_last_bot_move, last_opponent_move):
-    if not last_opponent_move:
+    if last_opponent_move is None:
         return randint(ROCK, NUM_MOVES)
     return (last_opponent_move + 1) % NUM_MOVES
 
