@@ -41,8 +41,11 @@ def playera_pays_playerb(hex_message):
     return coder.increment_state_balance(hex_message, 1, stake)
 
 def play_move(hex_message):
-    # Choose a random move
-    move = strategy.next_move(g.bot_addr)
+    bot_addr = g.bot_addr
+    last_opponent_move = wallet.get_last_opponent_move(hex_message, bot_addr)
+    last_bot_move = wallet.get_last_bot_move(hex_message, bot_addr)
+    move = strategy.next_move(last_bot_move, last_opponent_move, bot_addr)
+    wallet.set_last_bot_move(hex_message, move, bot_addr)
     return coder.update_move(hex_message, move)
 
 def from_game_propose(_hex_message):

@@ -16,7 +16,8 @@ K_RECEIVED = 'received'
 K_SENT = 'sent'
 K_UID = 'uid'
 K_MESSAGE = 'message'
-K_LAST_MOVE = 'last_move'
+K_LAST_BOT_MOVE = 'last_bot_move'
+K_LAST_OPPONENT_MOVE = 'last_opponent_move'
 K_NONCE = 'nonce'
 
 def _get_new_wallet(bot_addr):
@@ -73,14 +74,26 @@ def set_last_message_for_channel(hex_message, bot_addr):
     message_ref = get_wallet_channel_ref(bot_addr, hex_message).child(K_RECEIVED).child(K_MESSAGE)
     message_ref.set(str_to_hex(hex_message))
 
-def get_last_opponent_move(hex_message, bot_addr):
-    move_ref = get_wallet_channel_ref(bot_addr, hex_message).child(K_LAST_MOVE)
+def _get_last_move(hex_message, key, bot_addr):
+    move_ref = get_wallet_channel_ref(bot_addr, hex_message).child(key)
     return move_ref.get()
+
+def _set_last_move(hex_message, key, move, bot_addr):
+    move_ref = get_wallet_channel_ref(bot_addr, hex_message).child(key)
+    move_ref.set(move)
+
+def get_last_opponent_move(hex_message, bot_addr):
+    return _get_last_move(hex_message, K_LAST_OPPONENT_MOVE, bot_addr)
 
 def set_last_opponent_move(hex_message, bot_addr):
     a_move = coder.get_game_aplay(hex_message)
-    move_ref = get_wallet_channel_ref(bot_addr, hex_message).child(K_LAST_MOVE)
-    move_ref.set(a_move)
+    _set_last_move(hex_message, K_LAST_OPPONENT_MOVE, a_move, bot_addr)
+
+def get_last_bot_move(hex_message, bot_addr):
+    return _get_last_move(hex_message, K_LAST_BOT_MOVE, bot_addr)
+
+def set_last_bot_move(hex_message, move, bot_addr):
+    _set_last_move(hex_message, K_LAST_BOT_MOVE, move, bot_addr)
 
 def sign_message(message, bot_addr):
     message_hash = Web3.sha3(hexstr=message)
