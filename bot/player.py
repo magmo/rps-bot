@@ -113,7 +113,8 @@ def game_engine_message(message, bot_addr):
     if last_message == message:
         warning = f'Duplicate message received {last_message}'
         current_app.logger.warning(warning)
-        return set_response_message(warning, d_response)
+        # Turning off duplicate message safeguard for now
+        # return set_response_message(warning, d_response)
     wallet.set_last_message_for_channel(message, bot_addr)
 
     coder.assert_channel_num_players(message)

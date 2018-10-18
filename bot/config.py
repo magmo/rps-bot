@@ -1,5 +1,9 @@
 from collections import OrderedDict
 
+ROPSTEN = 'ropsten'
+KOVAN = 'kovan'
+TESTNET = KOVAN
+
 FINNEY = int(1e15)
 STAKES_IN_FUNDING = 50
 NUM_BOTS = 3
