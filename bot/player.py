@@ -81,7 +81,8 @@ def game(hex_message):
     game_position = coder.get_game_position(hex_message)
     return GAME_STATES[game_position](hex_message)
 
-def conclude(_hex_message):
+def conclude(hex_message):
+    wallet.clear_wallet_channel(hex_message, g.bot_addr)
     return []
 
 CHANNEL_STATES = [
@@ -146,7 +147,6 @@ def channel_message():
         d_response = wallet.fund_adjudicator(message, g.bot_addr)
         current_app.logger.info(d_response.get('message'))
 
- 
     return jsonify(d_response)
 
 @BP.route('/clear_wallet_channels', methods=['POST'])

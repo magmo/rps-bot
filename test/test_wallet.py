@@ -44,3 +44,13 @@ def test_set_last_opponent_move(test_app): #pylint: disable=W0613
     bot.wallet.set_last_opponent_move(REVEAL_MESSAGE, ADDRESSES[0])
     last_move = bot.wallet.get_last_opponent_move(REVEAL_MESSAGE, ADDRESSES[0])
     assert last_move == 1
+
+def test_clear_wallet_channel(test_app): #pylint: disable=W0613
+    # This test uses the test Firebase realtime database
+    bot.wallet.set_last_opponent_move(REVEAL_MESSAGE, ADDRESSES[0])
+    bot.wallet.clear_wallet_channel(REVEAL_MESSAGE, ADDRESSES[0])
+
+    last_move = bot.wallet.get_last_opponent_move(REVEAL_MESSAGE, ADDRESSES[0])
+    assert last_move is None
+    last_message = bot.wallet.get_last_message_for_channel(REVEAL_MESSAGE, ADDRESSES[0])
+    assert last_message is None

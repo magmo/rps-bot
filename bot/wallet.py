@@ -61,6 +61,9 @@ def get_wallet(bot_addr):
 
     return (list(wrapped_wallet.values())[0], list(wrapped_wallet.keys())[0])
 
+def clear_wallet_channel(hex_message, bot_addr):
+    get_wallet_channel_ref(bot_addr, hex_message).delete()
+
 def clear_wallet_channels(bot_addr):
     _, wallet_key = get_wallet(bot_addr)
     get_wallet_ref(wallet_key).child(K_CHANNELS).delete()
