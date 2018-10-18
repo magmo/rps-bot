@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 ROPSTEN = 'ropsten'
 KOVAN = 'kovan'
-TESTNET = KOVAN
+TESTNET = ROPSTEN
 
 FINNEY = int(1e15)
 STAKES_IN_FUNDING = 50
