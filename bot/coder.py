@@ -6,11 +6,11 @@ N_PLAYERS = 2
 F_WIDTH = 32
 ADDRESS_WIDTH = 20
 
-# type, nonce, nPlayers, [players]
+#               type,     nonce,    nPlayers, [players]
 CHANNEL_BYTES = F_WIDTH + F_WIDTH + F_WIDTH + F_WIDTH * N_PLAYERS
 STATE_OFFSET = CHANNEL_BYTES
 
-# stateType, turnNum, stateCount, [balances]
+#             stateType, turnNum, stateCount, [balances]
 STATE_BYTES = F_WIDTH + F_WIDTH + F_WIDTH + F_WIDTH * N_PLAYERS
 
 ''' RockPaperScissors Game Fields
