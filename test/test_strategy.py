@@ -26,9 +26,8 @@ def test_strategy3():
     move3 = next_move(0, move2, ADDRESSES[2])
     assert move3 == (move2 + 1) % 3
 
-'''def test_decode_move():
+def test_decode_move():
     #pylint: disable=C0301
-    game_precommit = 'ada5013122d395ba3c54772283fb069b10426056ef8ca54750cb9bb552a59e7d'
+    game_precommit = '2f29e990b57b3c5621748e5dfb3cf7c098f0a3db21c5aa444bb8685f7042a29c'
     move = _decode_move(game_precommit)
-    assert move == 0
-'''
+    assert move == 1
