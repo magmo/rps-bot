@@ -29,7 +29,7 @@ def create_app(test_config=None):
     @app.before_request
     def _set_bot_addr():
         request_json = request.get_json()
-        g.bot_addr = hex_to_str(request_json.get('address_key'))
+        g.bot_addr = hex_to_str(request_json.get('address_key')).lower()
 
     try:
         firebase_admin.get_app()

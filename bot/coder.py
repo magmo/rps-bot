@@ -47,7 +47,8 @@ def _extract_int(h_string, byte_offset=0, num_bytes=32):
     return int(_extract_bytes(h_string, byte_offset, num_bytes), 16)
 
 def _get_address_from_field(field):
-    return field[CHARS_PER_BYTE * (F_WIDTH - ADDRESS_WIDTH):]
+    address = field[CHARS_PER_BYTE * (F_WIDTH - ADDRESS_WIDTH):]
+    return address.lower()
 
 def _get_byte_attribute_at_offset(h_message, offset, attr_index):
     return _extract_bytes(h_message, offset + F_WIDTH * attr_index)
