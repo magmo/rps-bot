@@ -3,6 +3,7 @@ from web3 import Web3
 
 from bot.config import ADDRESSES, NUM_MOVES
 from bot.util import hex_to_str, str_to_hex
+from bot.coder import get_game_precommit
 
 ROCK = 0
 
@@ -17,18 +18,21 @@ class InvalidStrategyError(StrategyError):
 def _raise_error():
     raise InvalidStrategyError()
 
-def _pick_rock(_last_bot_move, _last_opponent_move):
+def _incremental_move(move):
+    return (move + 1) % NUM_MOVES
+
+def _pick_rock(_last_bot_move, _last_opponent_move, _hex_message):
     return ROCK
 
-def _pick_increment(last_bot_move, _last_opponent_move):
+def _pick_increment(last_bot_move, _last_opponent_move, _hex_message):
     if last_bot_move is None:
         return ROCK
-    return (last_bot_move + 1) % NUM_MOVES
+    return _incremental_move(last_bot_move)
 
-def _pick_opponent_increment(_last_bot_move, last_opponent_move):
+def _pick_opponent_increment(_last_bot_move, last_opponent_move, _hex_message):
     if last_opponent_move is None:
         return randint(ROCK, NUM_MOVES)
-    return (last_opponent_move + 1) % NUM_MOVES
+    return _incremental_move(last_opponent_move)
 
 def _decode_move(move_hash):
     salt = "".join(['4' for i in range(0, 64)])
@@ -41,14 +45,19 @@ def _decode_move(move_hash):
             return move
     return -1
 
-def next_move(last_bot_move, last_opponent_move, addr):
+def _beat_move(_last_bot_move, _last_opponent_move, hex_message):
+    move_hash = get_game_precommit(hex_message)
+    return _incremental_move(_decode_move(move_hash))
+
+def next_move(last_bot_move, last_opponent_move, addr, hex_message=None):
     bot_index = ADDRESSES.index(addr)
     if bot_index < 0:
         _raise_error()
-    return STRATEGY[bot_index](last_bot_move, last_opponent_move)
+    return STRATEGY[bot_index](last_bot_move, last_opponent_move, hex_message)
 
 STRATEGY = [
     _pick_rock,
     _pick_increment,
-    _pick_opponent_increment
+    _pick_opponent_increment,
+    _beat_move
 ]

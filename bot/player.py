@@ -44,7 +44,7 @@ def play_move(hex_message):
     bot_addr = g.bot_addr
     last_opponent_move = wallet.get_last_opponent_move(hex_message, bot_addr)
     last_bot_move = wallet.get_last_bot_move(hex_message, bot_addr)
-    move = strategy.next_move(last_bot_move, last_opponent_move, bot_addr)
+    move = strategy.next_move(last_bot_move, last_opponent_move, bot_addr, hex_message=hex_message)
     wallet.set_last_bot_move(hex_message, move, bot_addr)
     return coder.update_move(hex_message, move)
 
