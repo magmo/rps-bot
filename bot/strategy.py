@@ -1,9 +1,11 @@
 from random import randint
 from web3 import Web3
 
-from bot.config import ADDRESSES, NUM_MOVES
-from bot.util import hex_to_str, str_to_hex
 from bot.coder import get_game_precommit
+from bot.config import ADDRESSES, NUM_MOVES
+from bot.external import reverse_hash_fail
+from bot.util import hex_to_str, str_to_hex
+
 
 ROCK = 0
 
@@ -34,7 +36,8 @@ def _pick_opponent_increment(_last_bot_move, last_opponent_move, _hex_message):
         return randint(ROCK, NUM_MOVES)
     return _incremental_move(last_opponent_move)
 
-def _decode_move(move_hash):
+def _decode_move(hex_message):
+    move_hash = get_game_precommit(hex_message)
     salt = "".join(['4' for i in range(0, 64)])
     hex_salt = str_to_hex(salt)
 
@@ -43,11 +46,12 @@ def _decode_move(move_hash):
         str_test_hash = hex_to_str(test_hash.hex())
         if str_test_hash == move_hash:
             return move
+
+    reverse_hash_fail(hex_message)
     return -1
 
 def _beat_move(_last_bot_move, _last_opponent_move, hex_message):
-    move_hash = get_game_precommit(hex_message)
-    return _incremental_move(_decode_move(move_hash))
+    return _incremental_move(_decode_move(hex_message))
 
 def next_move(last_bot_move, last_opponent_move, addr, hex_message=None):
     bot_index = ADDRESSES.index(addr)
