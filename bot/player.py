@@ -53,6 +53,9 @@ def from_game_propose(_hex_message):
 
 def from_game_reveal(hex_message):
     wallet.set_last_opponent_move(hex_message, g.bot_addr)
+    if not coder.get_state_balance(hex_message, 1):
+        wallet.clear_wallet_channel(hex_message, g.bot_addr)
+        return [coder.conclude]
     return [coder.new_game]
 
 GAME_STATES = (

@@ -17,7 +17,7 @@ def test_sign_message():
 @pytest.mark.usefixtures("test_app")
 def test_fund_adjudicator(mocker):
     #pylint: disable=C0301
-    tx_hash = '0x8bac5e6025bfed10b752741d40bb165c70e1d3cd0edcf089c4fba8c63b5e6836'
+    tx_hash = '0xf83e9fe1ff88ea1c9428681da936e92bf501866985608eb24e320a4bd1ec57f6'
     mocker.patch('firebase_admin.db.Query.get', new=get_wallets_fn('wallets'))
     mocker.patch('firebase_admin.db.Reference.transaction', lambda _1, _2: 10)
     mocker.patch('web3.eth.Eth.gasPrice', 2000000000)

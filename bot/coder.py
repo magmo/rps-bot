@@ -120,15 +120,22 @@ def get_state_count(h_message):
 def get_state_balance(h_message, player_index):
     return _get_state_int_attribute(h_message, 3 + player_index)
 
+def set_state_count(h_message, state_count):
+    return _update_field(h_message, STATE_OFFSET, 2, int_to_field(state_count))
+
 def increment_state_turn_num(h_message):
     turn_num = get_state_turn_num(h_message)
     turn_num += 1
     return _update_field(h_message, STATE_OFFSET, 1, int_to_field(turn_num))
 
+def incerement_channel_state(h_message):
+    channel_state = get_channel_state(h_message) + 1
+    return _update_field(h_message, STATE_OFFSET, 0, int_to_field(channel_state))
+
 def increment_state_count(h_message):
     state = get_state_count(h_message)
     state += 1
-    return _update_field(h_message, STATE_OFFSET, 2, int_to_field(state))
+    return set_state_count(h_message, state)
 
 def increment_state_balance(h_message, player_index, delta):
     balance = get_state_balance(h_message, player_index)
@@ -171,6 +178,11 @@ def increment_game_position(h_message):
 def new_game(h_message):
     h_message = update_game_position(h_message, 0)
     return h_message[: CHARS_PER_BYTE* (GAME_OFFSET + F_WIDTH * 2)]
+
+def conclude(h_message):
+    h_message = incerement_channel_state(h_message)
+    h_message = set_state_count(h_message, 0)
+    return h_message[: CHARS_PER_BYTE* (GAME_OFFSET)]
 
 def update_move(h_message, move):
     return _update_field(h_message, GAME_OFFSET, 3, int_to_field(move))
