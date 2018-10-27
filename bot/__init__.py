@@ -7,13 +7,14 @@ from flask import Flask, g, request
 from flask.logging import logging
 
 from bot import challenge
+from bot.config import get_project
 from bot.util import hex_to_str
 
 def get_fb_project_name(app):
     if app.config['TESTING']:
         environ["GOOGLE_APPLICATION_CREDENTIALS"] = path.join(getcwd(), 'creds_test.json')
         return 'rock-paper-scissors-test'
-    return environ.get('GOOGLE_CLOUD_PROJECT', 'rock-paper-scissors-dev')
+    return get_project()
 
 def create_app(test_config=None):
     app = Flask(__name__)
