@@ -1,8 +1,8 @@
 ADDRESSES = [
     '55de2e479f3d0183d95f5a969beeb3a147f60049',
-    '255F92e07eA1D66AadF4cd1Bd38f36e80B4f8e36',
-    'd68EA5900ce96B4b9468D4B97e3f025F5bbF4942',
-    'bCB973c192aa667E460a34B9Dd0c0c13C2B32813']
+    '255f92e07ea1d66aadf4cd1bd38f36e80b4f8e36',
+    'd68ea5900ce96b4b9468d4b97e3f025f5bbf4942',
+    'bcb973c192aa667e460a34b9dd0c0c13c2b32813']
 
 
 NAMES = ['Young Bot', 'Muscle Bot', 'Fine Taste Bot', 'Psychic Bot']
