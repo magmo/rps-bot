@@ -4,7 +4,7 @@ JSON1 = {
     'data': '0x2313BbAEcca3fC7f9650eDD62Bc21A7C835f8bc8',
     'queue': 'WALLET',
     'message_key': '-LPoGMyaqrbGs8F8euzm',
-    'address_key': '0xd68ea5900ce96b4b9468d4b97e3f025f5bbf4942'
+    'address_key': '0x55de2e479f3d0183d95f5a969beeb3a147f60049'
 }
 
 JSON2 = {
@@ -25,14 +25,14 @@ JSON4 = {
     'data': '0x55DCca276CfC34C4d7d9f1FA7c6E54A59D58274f',
     'queue': 'WALLET',
     'message_key': '-LPTN8xEYAK2jPoFyYt7',
-    'address_key': '0xb7dcd4ff30040c58eda8ba3bca6736fdad467660'
+    'address_key': '0x55de2e479f3d0183d95f5a969beeb3a147f60049'
 }
 
 def make_request(json):
     return requests.post('http://127.0.0.1:4000/channel_message', json=json)
 
 if __name__ == '__main__':
-    PAYLOADS = [JSON1] #, JSON2, JSON3, JSON4]
+    PAYLOADS = [JSON1, JSON2, JSON3, JSON4]
     for payload in PAYLOADS:
         r = make_request(payload)
         addr = r.json()['message'][40:]
