@@ -5,7 +5,7 @@ ADDRESSES = [
     'bcb973c192aa667e460a34b9dd0c0c13c2b32813']
 
 
-NAMES = ['Young Bot', 'Muscle Bot', 'Fine Taste Bot', 'Psychic Bot']
+NAMES = ['Baby Bot', 'Meathead Bot', 'Grand Master Bot', 'Psychic Bot']
 
 WALLET_UID = [
     '0000000000000000000000000b00',
