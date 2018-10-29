@@ -7,5 +7,5 @@ SLACK_HOOK = 'https://hooks.slack.com/services/TA65ZJ5PY/BDK6CMNRW/y21Ks2YSf0rCd
 def reverse_hash_fail(hex_message):
     players = get_channel_players(hex_message)
     move_hash = get_game_precommit(hex_message)
-    message = f'Stumped by player {players[1]}. Cannot decrypt move hash {move_hash}'
+    message = f'Stumped by player {players[0]}. Cannot decrypt move hash {move_hash}'
     requests.post(SLACK_HOOK, json={'text': message})

@@ -1,5 +1,6 @@
 import requests
 
+from bot.coder import get_channel_players
 from bot.config import get_env, ENV_PROD
 
 GA_TRACKING_ID = 'UA-128287181-2'
@@ -21,3 +22,10 @@ def track_event(bot_addr, category, action, label=None, value=0):
     }
 
     requests.post('http://www.google-analytics.com/collect', data=data)
+
+def track_ge_event(hex_message, action):
+    opponent = get_channel_players(hex_message)[0]
+    track_event(opponent, "game_engine", action)
+
+def track_wallet_event(bot_addr, action):
+    track_event(bot_addr, "wallet", action)

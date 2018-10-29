@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, jsonify, request, g
 
 
 from bot import challenge, coder, fb_message, strategy, wallet
-from bot.tracking import track_event
+from bot.tracking import track_ge_event, track_wallet_event
 from bot.util import hex_to_str, set_response_message, str_to_hex
 
 BP = Blueprint('channel_message', __name__)
@@ -50,11 +50,11 @@ def play_move(hex_message):
     return coder.update_move(hex_message, move)
 
 def from_game_propose(_hex_message):
-    track_event(g.bot_addr, "channel_message", "from_game_propose")
+    track_ge_event(g.bot_addr, "from_game_propose")
     return [playera_pays_playerb, play_move, coder.increment_game_position]
 
 def from_game_reveal(hex_message):
-    track_event(g.bot_addr, "channel_message", "from_game_reveal")
+    track_ge_event(g.bot_addr, "from_game_reveal")
     wallet.set_last_opponent_move(hex_message, g.bot_addr)
     if not coder.get_state_balance(hex_message, 0) or not coder.get_state_balance(hex_message, 1):
         wallet.clear_wallet_channel(hex_message, g.bot_addr)
@@ -71,7 +71,7 @@ GAME_STATES = (
 
 # Channel state transitions
 def prefund_setup(hex_message):
-    track_event(g.bot_addr, "channel_message", "prefund")
+    track_ge_event(g.bot_addr, "prefund")
     state_count = coder.get_state_count(hex_message)
     transformations = []
     if state_count:
@@ -82,7 +82,7 @@ def prefund_setup(hex_message):
     return transformations
 
 def postfund_setup(hex_message):
-    track_event(g.bot_addr, "channel_message", "postfund")
+    track_ge_event(g.bot_addr, "postfund")
     return prefund_setup(hex_message)
 
 def game(hex_message):
@@ -90,7 +90,7 @@ def game(hex_message):
     return GAME_STATES[game_position](hex_message)
 
 def conclude(hex_message):
-    track_event(g.bot_addr, "channel_message", "conclude")
+    track_ge_event(g.bot_addr, "conclude")
     wallet.clear_wallet_channel(hex_message, g.bot_addr)
     return []
 
@@ -154,6 +154,7 @@ def channel_message():
     if queue == 'GAME_ENGINE':
         d_response = game_engine_message(message, g.bot_addr)
     elif queue == 'WALLET':
+        track_wallet_event(g.bot_addr, "from_game_propose")
         d_response = wallet.fund_adjudicator(message, g.bot_addr)
         current_app.logger.info(d_response.get('message'))
 
