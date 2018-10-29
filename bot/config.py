@@ -1,16 +1,6 @@
 from collections import OrderedDict
 from os import environ
 
-ROPSTEN = 'ropsten'
-KOVAN = 'kovan'
-TESTNET = ROPSTEN
-
-FINNEY = int(1e15)
-STAKES_IN_FUNDING = 5
-NUM_BOTS = 4
-
-NUM_MOVES = 3
-
 PROJ_DEV = 'rock-paper-scissors-dev'
 def get_project():
     return environ.get('GOOGLE_CLOUD_PROJECT', PROJ_DEV)
@@ -25,6 +15,15 @@ if get_env() == ENV_DEV:
 else:
     from bot.config_prod import ADDRESSES, NAMES, WALLET_UID, PKS
 
+ROPSTEN = 'ropsten'
+KOVAN = 'kovan'
+TESTNET = ROPSTEN
+
+FINNEY = int(1e15)
+STAKES_IN_FUNDING = 5
+NUM_BOTS = 4
+
+NUM_MOVES = 3
 K_ADDRESS = 'bot_addr'
 K_NAME = 'bot_name'
 K_WALLET_UID = 'bot_wallet_uid'
