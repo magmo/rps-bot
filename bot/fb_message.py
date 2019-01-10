@@ -17,8 +17,8 @@ def message_consumed(key, addr):
 def message_opponent(message, bot_addr):
     state_type = coder.get_channel_state(message)
     queue = 'GAME_ENGINE'
-    # Postfund messages are sent to the wallet
-    if state_type == 1:
+    # Postfund and conclusion messages are sent to the wallet
+    if state_type == 1 or state_type == 3:
         queue = 'WALLET'
     hex_message = str_to_hex(message)
     signature = str_to_hex(sign_message(hex_message, bot_addr))
