@@ -20,6 +20,6 @@
 * For integration testing, the code base has to be deployed to App Engine (takes about 3 minutes), then the client application (the manual player) needs to be run with .env file containing TARGET_NETWORK=ropsten.
 * You can look in the App Engine console for errors.
 
-## How do I deploy the bots to the app engine?
+### How do I deploy the bots to the app engine?
 * Deployment to the development environment is done via the `gcloud` command: `gcloud app deploy` from the root directory.
 * Deployment to the production environment is automatically triggered from the `deploy` branch. 
