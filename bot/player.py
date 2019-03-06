@@ -145,15 +145,15 @@ def channel_message():
     current_app.logger.info(f'Request_json: {request_json}')
 
     message = hex_to_str(request_json['data'])
-    queue = request_json['queue']
     fb_message_key = request_json.get('message_key')
     fb_message.message_consumed(fb_message_key, g.bot_addr)
 
     d_response = set_response_message()
 
-    if queue == 'GAME_ENGINE':
+    if len(message) >= 64:
         d_response = game_engine_message(message, g.bot_addr)
-    elif queue == 'WALLET':
+    # A message of length 64 or shorter is an adjudicator address
+    else:
         track_wallet_event(g.bot_addr, "from_game_propose")
         d_response = wallet.fund_adjudicator(message, g.bot_addr)
         current_app.logger.info(d_response.get('message'))
